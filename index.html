@@ -755,9 +755,20 @@ function renderBuilderSecs(){
   const wrap=document.getElementById("sections-wrap"),list=document.getElementById("sections-list");
   if(!sections.length){wrap.style.display="none";return;}wrap.style.display="flex";
   const team=getTeam(curTeamId);const cats=getCategories(team);
+  const clItems=clCache[curTeamId]||[];
   list.innerHTML=sections.map((s,i)=>{const cat=cats.find(c=>c.id===s.categoryId)||{};
-    return`<div class="bsec"><div class="bsec-top"><div class="bsec-lft"><span class="bsec-num">${String(i+1).padStart(2,"0")}</span><span class="cat-ic">${cat.icon||""}</span><span class="bsec-lbl">${cat.label||""}</span></div><div class="bsec-acts"><button class="ic-btn" onclick="moveSection(${i},-1)"${i===0?" disabled":""}>&#9650;</button><button class="ic-btn" onclick="moveSection(${i},1)"${i===sections.length-1?" disabled":""}>&#9660;</button><button class="ic-btn danger" onclick="removeSection('${s.id}')">x</button></div></div><div class="field-block"><span class="lbl-xs">duration</span><div class="tchips">${TIMES.map(t=>`<button class="tchip${s.duration===t?" sel":""}" onclick="setSecDur('${s.id}',${t})">${t}m</button>`).join("")}</div></div><div class="field-block"><span class="lbl-xs">breakdown / details</span><textarea class="ta" rows="2" placeholder="focus points..." oninput="setSecDetails('${s.id}',this.value)">${esc(s.details||"")}</textarea></div></div>`;
+    const selIds=s.selectedProblems||[];
+    const problemsHtml=cat.id==="problems"?`<div class="field-block"><span class="lbl-xs">select problems to work on</span>${clItems.filter(i=>!i.done).length?`<div style="border:1px solid var(--border);border-radius:7px;overflow:hidden">${clItems.filter(i=>!i.done).map(item=>{const sel=selIds.includes(item.id);return`<div style="display:flex;align-items:center;gap:9px;padding:7px 10px;border-bottom:1px solid var(--border);cursor:pointer;background:${sel?"rgba(196,85,154,.07)":"transparent"}" onclick="toggleSectionProblem('${s.id}','${item.id}')"><div style="width:16px;height:16px;border:1.5px solid ${sel?"var(--pink)":"var(--border)"};border-radius:3px;flex-shrink:0;background:${sel?"var(--pink)":"transparent"};display:flex;align-items:center;justify-content:center"><span style="color:white;font-size:8px;font-weight:700">${sel?"v":""}</span></div><span style="font-size:11px;color:${sel?"var(--ink)":"var(--stone)"}">${esc(item.text)}</span></div>`}).join("")}</div>`:`<div style="font-size:11px;color:var(--stone);font-style:italic;padding:6px 0">No open problems yet — add from checklist!</div>`}</div>`:"";
+    return`<div class="bsec"><div class="bsec-top"><div class="bsec-lft"><span class="bsec-num">${String(i+1).padStart(2,"0")}</span><span class="cat-ic">${cat.icon||""}</span><span class="bsec-lbl">${cat.label||""}</span></div><div class="bsec-acts"><button class="ic-btn" onclick="moveSection(${i},-1)"${i===0?" disabled":""}>&#9650;</button><button class="ic-btn" onclick="moveSection(${i},1)"${i===sections.length-1?" disabled":""}>&#9660;</button><button class="ic-btn danger" onclick="removeSection('${s.id}')">x</button></div></div>${problemsHtml}<div class="field-block"><span class="lbl-xs">duration</span><div class="tchips">${TIMES.map(t=>`<button class="tchip${s.duration===t?" sel":""}" onclick="setSecDur('${s.id}',${t})">${t}m</button>`).join("")}</div></div><div class="field-block"><span class="lbl-xs">breakdown / details</span><textarea class="ta" rows="2" placeholder="focus points..." oninput="setSecDetails('${s.id}',this.value)">${esc(s.details||"")}</textarea></div></div>`;
   }).join("");
+}
+
+function toggleSectionProblem(secId,itemId){
+  const sec=sections.find(s=>s.id===secId);if(!sec)return;
+  sec.selectedProblems=sec.selectedProblems||[];
+  const idx=sec.selectedProblems.indexOf(itemId);
+  if(idx>-1)sec.selectedProblems.splice(idx,1);else sec.selectedProblems.push(itemId);
+  renderBuilderSecs();
 }
 function buildPlanObj(){return{id:curPlanId,templateId:curTplId,date:document.getElementById("b-date").value,sections:JSON.parse(JSON.stringify(sections)),attendance:getPlan(curPlanId)?.attendance||{},checklistIds:[...selClIds]};}
 async function autoSave(){const p=buildPlanObj();sd("builder","busy","saving");try{await planSave(p);sd("builder","ok","saved");}catch{sd("builder","err","failed");}}
@@ -823,10 +834,13 @@ function renderPlanProblems(plan){
   </div>`).join("");
 }
 
-async function togglePlanProblem(id){
+async function togglePlanProblem(id,secId){
   const i=(clCache[curTeamId]||[]).find(x=>x.id===id);if(!i)return;
   i.done=!i.done;await clCol(curTeamId).doc(id).set(i);
-  renderPlanProblems(getPlan());
+  // Re-render the plan sections to reflect tick
+  const plan=getPlan();const team=getTeam(curTeamId);
+  if(plan)renderPlanSections(plan,team);
+  renderPlanProblems(plan);
 }
 
 function renderLastSessionNotes(){} // kept for compatibility
@@ -866,10 +880,15 @@ function renderPlanSections(plan,team){
     if(sec.details)html+=`<div class="plan-field"><div class="plan-field-lbl">breakdown</div><div class="detail-text">${esc(sec.details)}</div></div>`;
     if(cat.stunt){const stunt=(team.stunts||[]).find(s=>s.id===cat.stuntKey);const athletes=stunt?stunt.athletes:[];html+=`<div class="plan-field"><div class="plan-field-lbl">stunt tracking</div><div class="stunt-tbl"><div class="stunt-tbl-hd"><span>group</span><span>attempts</span><span>hits</span></div>${athletes.map(name=>`<div class="stunt-tbl-row"><span style="font-size:11px">${esc(name)}'s group</span><input type="number" min="0" class="stunt-inp" placeholder="--" value="${esc(String(sec.stuntData&&sec.stuntData[name]?sec.stuntData[name].attempts||"":""))}" oninput="updateStunt('${sec.id}','${name}','attempts',this.value)"/><input type="number" min="0" class="stunt-inp" placeholder="--" value="${esc(String(sec.stuntData&&sec.stuntData[name]?sec.stuntData[name].hits||"":""))}" oninput="updateStunt('${sec.id}','${name}','hits',this.value)"/></div>`).join("")}</div></div>`;}
     if(cat.id==="problems"){
-      const items=clCache[curTeamId]||[];
-      const pending=items.filter(i=>!i.done);
-      if(pending.length){html+=`<div class="plan-field"><div class="plan-field-lbl">problems to work on</div><div style="border:1px solid var(--border);border-radius:7px;overflow:hidden">${pending.map(item=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid var(--border);cursor:pointer" onclick="togglePlanProblem('${item.id}')"><div style="width:18px;height:18px;border:1.5px solid ${item.done?"var(--pink)":"var(--border)"};border-radius:3px;flex-shrink:0;background:${item.done?"var(--pink)":"transparent"};display:flex;align-items:center;justify-content:center"><span style="color:white;font-size:9px;font-weight:700">${item.done?"v":""}</span></div><span style="font-size:12px;color:${item.done?"var(--stone)":"var(--ink)"};${item.done?"text-decoration:line-through":""}">${esc(item.text)}</span></div>`).join("")}</div></div>`;}
-      else{html+=`<div class="plan-field" style="color:var(--stone);font-size:12px;font-style:italic">No open problems — add some from the checklist!</div>`;}
+      const selectedIds=sec.selectedProblems||[];
+      const allItems=clCache[curTeamId]||[];
+      // Show selected problems, or all pending if none selected
+      const showItems=selectedIds.length>0?allItems.filter(i=>selectedIds.includes(i.id)):allItems.filter(i=>!i.done);
+      if(showItems.length){
+        html+=`<div class="plan-field"><div class="plan-field-lbl">problems to fix this session</div><div style="border:1px solid var(--border);border-radius:7px;overflow:hidden">${showItems.map(item=>`<div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid var(--border);cursor:pointer;background:${item.done?"rgba(196,85,154,.06)":"transparent"}" onclick="togglePlanProblem('${item.id}','${sec.id}')"><div style="width:20px;height:20px;border:1.5px solid ${item.done?"var(--pink)":"var(--border)"};border-radius:4px;flex-shrink:0;background:${item.done?"var(--pink)":"transparent"};display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="color:white;font-size:10px;font-weight:700">${item.done?"v":""}</span></div><span style="font-size:12px;color:${item.done?"var(--stone)":"var(--ink)"};${item.done?"text-decoration:line-through":""}">${esc(item.text)}</span></div>`).join("")}</div></div>`;
+      } else {
+        html+=`<div class="plan-field"><div style="font-size:12px;color:var(--stone);font-style:italic">No problems selected — go back to edit and select problems to work on.</div></div>`;
+      }
     }
     html+=`<div class="plan-field"><div class="plan-field-lbl">comments</div><textarea class="plan-ta" rows="2" placeholder="notes from practice..." oninput="updateComment('${sec.id}',this.value)">${esc(sec.comments||"")}</textarea></div></div></div>`;
     return html;
