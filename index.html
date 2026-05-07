@@ -833,15 +833,6 @@ async function togglePlanProblem(id){
 }
 
 function renderLastSessionNotes(){} // kept for compatibility
-  const wrap=document.getElementById("last-session-wrap");const content=document.getElementById("last-session-content");
-  const plans=(plansCache[curTeamId]||[]).filter(p=>p.templateId===currentPlan.templateId&&p.id!==currentPlan.id&&p.date&&p.date<(currentPlan.date||"9999")).sort((a,b)=>b.date.localeCompare(a.date));
-  if(!plans.length){wrap.style.display="none";return;}
-  const last=plans[0];
-  const notes=last.sections.map(s=>s.comments).filter(Boolean);
-  if(!notes.length){wrap.style.display="none";return;}
-  wrap.style.display="block";
-  content.innerHTML=`<div class="last-session-box"><div class="last-session-lbl">last ${esc(team.templates[last.templateId]?.display||"")} — ${fmtDate(last.date)}</div>${notes.map(n=>`<div class="last-session-text">${esc(n)}</div>`).join("")}</div>`;
-}
 
 function renderAttendance(plan,team){
   const allAthletes=[...new Set((team.stunts||[]).flatMap(s=>s.athletes))];
