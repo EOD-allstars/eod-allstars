@@ -1001,11 +1001,25 @@ function renderCoordView(container){
         const alMins=cell.alissa_mins||0;
         const lyMins=cell.lydia_mins||0;
         const borderLeft=di===0?"border-left:2px solid var(--border2);":"";
-        let cellContent="";
-        if(alMins>0)cellContent+=`<div style="background:#e91e8c;border-radius:3px;padding:2px 5px;font-size:9px;font-weight:700;color:white;margin-bottom:2px">${alMins}m</div>`;
-        if(lyMins>0)cellContent+=`<div style="background:#4caf50;border-radius:3px;padding:2px 5px;font-size:9px;font-weight:700;color:white">${lyMins}m</div>`;
-        html+=`<td style="padding:4px;text-align:center;border-bottom:1px solid var(--border);${borderLeft}cursor:${coordCoach?"pointer":"default"};min-width:52px" onclick="coordCellClick('${w.key}','${day}','${esc(sec)}')">
-          ${cellContent||`<div style="width:100%;height:28px;border:1.5px dashed ${coordCoach?"var(--border2)":"var(--border)"};border-radius:4px;opacity:.4"></div>`}
+        // Build cell background - split if both coaches
+        let cellBg="transparent";let cellBorder=`1.5px dashed ${coordCoach?"var(--border2)":"var(--border)"}`;
+        let cellText="";let cellStyle="";
+        if(alMins>0&&lyMins>0){
+          // Split diagonally - use gradient
+          cellBg=`linear-gradient(135deg, #e91e8c 50%, #4caf50 50%)`;
+          cellText=`<div style="font-size:8px;font-weight:700;color:white;text-shadow:0 1px 2px rgba(0,0,0,.4);line-height:1.2"><span style="color:#ffcce8">${alMins}m</span><br/><span style="color:#c8f5c8">${lyMins}m</span></div>`;
+          cellBorder="none";
+        } else if(alMins>0){
+          cellBg="#e91e8c";cellBorder="none";
+          cellText=`<div style="font-size:10px;font-weight:700;color:white">${alMins}m</div>`;
+        } else if(lyMins>0){
+          cellBg="#4caf50";cellBorder="none";
+          cellText=`<div style="font-size:10px;font-weight:700;color:white">${lyMins}m</div>`;
+        }
+        html+=`<td style="padding:0;border-bottom:1px solid var(--border);${borderLeft}cursor:${coordCoach?"pointer":"default"};min-width:52px;height:40px" onclick="coordCellClick('${w.key}','${day}','${esc(sec)}')">
+          <div style="width:100%;height:40px;background:${cellBg};border:${cellBorder};display:flex;align-items:center;justify-content:center;border-radius:3px;${alMins===0&&lyMins===0?"opacity:.35":""}">
+            ${cellText}
+          </div>
         </td>`;
       });
     });
@@ -1041,18 +1055,11 @@ function renderCoordView(container){
     // Pie chart
     html+=`<div><div style="font-family:'DM Serif Display',serif;font-size:18px;font-style:italic;margin-bottom:10px">time split</div>`;
     const PIE_COLORS=["#e91e8c","#4caf50","#2196f3","#ff9800","#9c27b0","#00bcd4","#f44336","#8bc34a","#ff5722","#607d8b","#ffc107"];
-    html+=`<canvas id="coord-pie" width="220" height="220"></canvas>`;
+    html+=`<canvas id="coord-pie" width="220" height="220" style="display:block" data-total="${grandTotal}" data-vals="${secTotals.map((x,i)=>x.mins+"|"+PIE_COLORS[i%PIE_COLORS.length]).join(",")}"></canvas>`;
     html+=`<div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px">`;
-    secTotals.forEach((x,i)=>{html+=`<div style="display:flex;align-items:center;gap:5px"><div style="width:10px;height:10px;border-radius:2px;background:${PIE_COLORS[i%PIE_COLORS.length]}"></div><span style="font-size:10px;color:var(--stone)">${esc(x.sec)}</span></div>`;});
+    secTotals.forEach((x,i)=>{html+=`<div style="display:flex;align-items:center;gap:5px"><div style="width:10px;height:10px;border-radius:2px;flex-shrink:0;background:${PIE_COLORS[i%PIE_COLORS.length]}"></div><span style="font-size:10px;color:var(--stone)">${esc(x.sec)}</span></div>`;});
     html+=`</div></div></div>`;
-    // Draw pie after render
-    html+=`<script>setTimeout(()=>{
-      const canvas=document.getElementById("coord-pie");if(!canvas)return;
-      const ctx=canvas.getContext("2d");const W=220,H=220,R=90,cx=W/2,cy=H/2;
-      const data=[${secTotals.map((x,i)=>`{v:${x.mins},c:"${PIE_COLORS[i%PIE_COLORS.length]}"}`).join(",")}];
-      const total=${grandTotal};let angle=-Math.PI/2;
-      data.forEach(d=>{const sweep=(d.v/total)*Math.PI*2;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,R,angle,angle+sweep);ctx.closePath();ctx.fillStyle=d.c;ctx.fill();ctx.strokeStyle="white";ctx.lineWidth=2;ctx.stroke();angle+=sweep;});
-    },100)<\/script>`;
+    // pie drawn after render via drawCoordPie()
   }
   html+=`</div>`;
 
@@ -1078,6 +1085,28 @@ function renderCoordView(container){
   container.innerHTML=html;
   // Hide popup initially
   const popup=document.getElementById("coord-popup");if(popup)popup.style.display="none";
+  // Draw pie chart
+  setTimeout(drawCoordPie,80);
+}
+
+function drawCoordPie(){
+  const canvas=document.getElementById("coord-pie");if(!canvas)return;
+  const total=parseInt(canvas.dataset.total)||0;
+  const valsStr=canvas.dataset.vals||"";
+  if(!total||!valsStr)return;
+  const entries=valsStr.split(",").map(s=>{const p=s.split("|");return{v:parseInt(p[0]),c:p[1]};});
+  const ctx=canvas.getContext("2d");
+  const W=220,H=220,R=95,cx=W/2,cy=H/2;
+  ctx.clearRect(0,0,W,H);
+  let angle=-Math.PI/2;
+  entries.forEach(d=>{
+    const sweep=(d.v/total)*Math.PI*2;
+    ctx.beginPath();ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,R,angle,angle+sweep);
+    ctx.closePath();ctx.fillStyle=d.c;ctx.fill();
+    ctx.strokeStyle="white";ctx.lineWidth=2;ctx.stroke();
+    angle+=sweep;
+  });
 }
 
 function selectCoach(id){coordCoach=id;renderCoordView(document.getElementById("team-content"));}
