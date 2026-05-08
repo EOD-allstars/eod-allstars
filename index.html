@@ -1229,7 +1229,7 @@ function renderPPStunts(container){
     const totalHits=sessions.reduce((a,x)=>a+(x.hits||0),0);
     const totalAtts=sessions.reduce((a,x)=>a+(x.attempts||0),0);
     const pct=totalAtts>0?Math.round((totalHits/totalAtts)*100):null;
-    html+=`<div class="pp-stunt-tile" onclick="selectPPStunt('${s.id}')">
+    html+=`<div class="pp-stunt-tile" data-stuntid="${s.id}" style="cursor:pointer">
       <div class="pp-stunt-num">${icons[i]||"★"}</div>
       <div class="pp-stunt-label">${esc(s.label)}</div>
       <div class="pp-stunt-desc">${esc(s.desc)}</div>
@@ -1238,6 +1238,9 @@ function renderPPStunts(container){
   });
   html+=`</div></div>`;
   container.innerHTML=html;
+  container.querySelectorAll("[data-stuntid]").forEach(el=>{
+    el.addEventListener("click",()=>selectPPStunt(el.dataset.stuntid));
+  });
 }
 
 function selectPPStunt(stuntId){ppCurStunt=stuntId;curTeamTab="pp_groups";renderTeamTab();}
@@ -1257,7 +1260,7 @@ function renderPPGroups(container){
     const last=sessions[0];
     const pct=last&&last.attempts>0?Math.round((last.hits/last.attempts)*100):null;
     const trend=calcTrend(sessions);
-    html+=`<div class="pp-group-tile" onclick="selectPPGroup('${g.id}')">
+    html+=`<div class="pp-group-tile" data-groupid="${g.id}" style="cursor:pointer">
       <div class="pp-group-initial">${g.name[0]}</div>
       <div class="pp-group-name">${esc(g.name)}'s group</div>
       ${pct!==null?`<div style="font-size:13px;font-weight:700;color:${pctCol(pct)}">${pct}% last session</div>`:""}
@@ -1266,6 +1269,9 @@ function renderPPGroups(container){
   });
   html+=`</div></div>`;
   container.innerHTML=html;
+  container.querySelectorAll("[data-groupid]").forEach(el=>{
+    el.addEventListener("click",()=>selectPPGroup(el.dataset.groupid));
+  });
 }
 
 function calcTrend(sessions){
