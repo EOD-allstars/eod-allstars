@@ -1368,13 +1368,13 @@ function ppAdjust(field,delta){
 }
 
 function ppHit(){
-  ppSessionData.attempts=(ppSessionData.attempts||0)+1;
   ppSessionData.hits=(ppSessionData.hits||0)+1;
-  // Check for 100% hit rate - celebrate!
-  if(ppSessionData.attempts>0&&ppSessionData.hits===ppSessionData.attempts&&ppSessionData.attempts>=3){
-    launchConfetti();
-  }
+  ppSessionData.attempts=Math.max(ppSessionData.attempts||0,ppSessionData.hits);
   renderTeamTab();
+  // Celebrate if 100% and at least 3 attempts
+  if(ppSessionData.attempts>=3&&ppSessionData.hits===ppSessionData.attempts){
+    setTimeout(launchConfetti,100);
+  }
 }
 
 function launchConfetti(){
