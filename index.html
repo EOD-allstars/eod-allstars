@@ -8,7 +8,8 @@
 <title>EOD Allstars · Fullout Tracker</title>
 <link rel="icon" type="image/png" href="favicon.png"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Caveat:wght@500;700&family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet"/>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <style>
@@ -225,6 +226,376 @@ body{font-family:'DM Sans',sans-serif;color:var(--ink);}
 .pp-hit-rate{font-family:'DM Serif Display',serif;font-size:52px;font-style:italic;text-align:center;line-height:1;}
 .confetti-piece{position:fixed;width:10px;height:10px;border-radius:2px;pointer-events:none;z-index:9999;animation:confettiFall linear forwards;}
 @keyframes confettiFall{0%{transform:translateY(-20px) rotate(0deg);opacity:1;}100%{transform:translateY(110vh) rotate(720deg);opacity:0;}}
+
+/* ════════════ PINK PANTHERS — fancy home + sub-pages ════════════ */
+@font-face{font-family:'Bagel Fat One';font-display:swap;}
+
+/* PP-only — big screen detection. The StanbyME is 1920×1080. Anything ≥ 1400px treats this
+   as a "gym screen" and bumps touch targets + type sizes so it's tappable from arm's length. */
+@media (min-width: 1400px){
+  .pp-bigscreen-scope{ font-size: 18px; }
+  .pp-bigscreen-scope .pp-tile{ min-height: 240px; }
+  .pp-bigscreen-scope .pp-tile-title{ font-size: 32px !important; }
+  .pp-bigscreen-scope .pp-tile-icon{ font-size: 60px !important; }
+  .pp-bigscreen-scope .pp-tile-sub{ font-size: 14px !important; }
+  .pp-bigscreen-scope .pp-fo-hit-btn,
+  .pp-bigscreen-scope .pp-fo-miss-btn{ font-size: 14px; padding: 12px 20px; }
+  .pp-bigscreen-scope .pp-fo-flyer{ font-size: 32px; }
+  .pp-bigscreen-scope .pp-wordmark{ font-size: 92px !important; }
+  .pp-bigscreen-scope .pp-counter-num{ font-size: 96px !important; }
+  .pp-bigscreen-scope .pp-counter-btn{ width: 90px !important; height: 90px !important; font-size: 32px !important; }
+  .pp-bigscreen-scope .pp-star-row{ font-size: 22px !important; }
+  .pp-bigscreen-scope .pp-house-pts{ font-size: 96px !important; }
+  .pp-bigscreen-scope .pp-house-add{ font-size: 16px !important; padding: 14px 22px !important; }
+  .pp-bigscreen-scope .pp-timer-digits{ font-size: 96px !important; }
+}
+
+/* Animated soft-pink gradient background for the PP home */
+@keyframes ppHueDrift{
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.pp-gradient-bg{
+  background: linear-gradient(120deg, #ffeaf5 0%, #fce7ff 25%, #ffe6f0 50%, #f5e1ff 75%, #ffeaf5 100%);
+  background-size: 400% 400%;
+  animation: ppHueDrift 18s ease-in-out infinite;
+}
+
+/* Drifting sparkle particles in the background */
+@keyframes ppSparkleDrift{
+  0%   { transform: translate(0,0) scale(0.4) rotate(0deg); opacity: 0; }
+  20%  { opacity: 0.6; }
+  80%  { opacity: 0.6; }
+  100% { transform: translate(var(--dx,40px), var(--dy,-80px)) scale(1) rotate(180deg); opacity: 0; }
+}
+.pp-sparkle{
+  position: absolute; pointer-events: none; color: #e91e8c;
+  font-size: 14px; opacity: 0;
+  animation: ppSparkleDrift var(--dur,7s) ease-in-out infinite;
+  animation-delay: var(--delay,0s);
+}
+
+/* The big italic wordmark */
+.pp-wordmark{
+  font-family: 'Bagel Fat One', 'DM Serif Display', sans-serif;
+  font-size: 56px;
+  text-align: center;
+  line-height: 0.95;
+  margin-bottom: 4px;
+  background: linear-gradient(135deg, #1a1a1a 0%, #6b1a4a 60%, #c4559a 100%);
+  background-clip: text; -webkit-background-clip: text;
+  color: transparent; -webkit-text-fill-color: transparent;
+  letter-spacing: 0;
+}
+.pp-tagline{
+  font-family: 'Caveat', cursive;
+  text-align: center;
+  font-size: 22px;
+  color: #c4559a;
+  margin-bottom: 24px;
+  transform: rotate(-1deg);
+}
+
+/* Tile grid + tile styles. Each tile gets its own accent via --tile-accent. */
+.pp-tile-grid{
+  display: grid;
+  gap: 14px;
+  max-width: 760px;
+  margin: 0 auto 18px;
+}
+.pp-tile-grid.row-primary{ grid-template-columns: 1fr 1fr; }
+.pp-tile-grid.row-secondary{ grid-template-columns: 1fr 1fr 1fr; }
+
+.pp-tile{
+  position: relative;
+  background: white;
+  border: 2px solid var(--tile-accent, #d8d7d5);
+  border-radius: 18px;
+  padding: 22px 18px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+  font-family: 'DM Sans', sans-serif;
+  -webkit-tap-highlight-color: rgba(196,85,154,0.15);
+  touch-action: manipulation;
+  transition: transform 0.18s cubic-bezier(.34,1.56,.64,1), box-shadow 0.18s;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  min-height: 140px;
+  overflow: hidden;
+}
+.pp-tile:hover{ transform: translateY(-2px); box-shadow: 0 6px 20px rgba(196,85,154,0.18); }
+.pp-tile:active{ transform: scale(0.95); }
+@keyframes ppTileBounce{
+  0%   { transform: scale(1); }
+  35%  { transform: scale(0.93) rotate(-1.5deg); }
+  60%  { transform: scale(1.04) rotate(1deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+.pp-tile.bouncing{ animation: ppTileBounce 0.5s ease-out; }
+
+@keyframes ppPulse{
+  0%,100% { box-shadow: 0 2px 12px rgba(0,0,0,0.05), 0 0 0 0 rgba(196,85,154,0.5); }
+  50%     { box-shadow: 0 2px 12px rgba(0,0,0,0.05), 0 0 0 14px rgba(196,85,154,0); }
+}
+.pp-tile.pp-pulse{ animation: ppPulse 1.6s ease-in-out infinite; }
+
+.pp-tile-icon{ font-size: 38px; line-height: 1; }
+.pp-tile-title{
+  font-family: 'Bagel Fat One', 'DM Serif Display', sans-serif;
+  font-size: 22px; line-height: 1; color: var(--ink);
+  letter-spacing: 0.5px;
+}
+.pp-tile-sub{ font-size: 11px; color: var(--stone); letter-spacing: 0.5px; }
+
+/* "Big" version for the two primary tiles */
+.pp-tile.big{ min-height: 180px; padding: 26px 18px; }
+.pp-tile.big .pp-tile-icon{ font-size: 52px; }
+.pp-tile.big .pp-tile-title{ font-size: 26px; }
+
+/* Mute toggle in the corner of PP home */
+.pp-mute-btn{
+  position: absolute; top: 12px; right: 12px;
+  background: rgba(255,255,255,0.7); backdrop-filter: blur(8px);
+  border: 1px solid rgba(196,85,154,0.25); border-radius: 100px;
+  width: 38px; height: 38px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 16px;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.15s;
+  z-index: 5;
+}
+.pp-mute-btn:active{ transform: scale(0.9); }
+
+/* ── Star Chart ── */
+.pp-star-row{
+  display: grid; grid-template-columns: 36px 1fr auto auto; align-items: center;
+  gap: 12px; padding: 10px 14px; background: white;
+  border: 1px solid #f0d4e4; border-radius: 12px;
+  margin-bottom: 6px;
+  transition: box-shadow 0.3s, border-color 0.3s;
+}
+.pp-star-row.glow{
+  border-color: gold;
+  box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.25), 0 4px 18px rgba(255, 215, 0, 0.4);
+}
+.pp-star-avatar{
+  width: 36px; height: 36px; border-radius: 50%;
+  background: linear-gradient(135deg, #e91e8c, #9b59b6);
+  color: white; font-family: 'DM Serif Display', serif; font-style: italic;
+  font-size: 18px;
+  display: flex; align-items: center; justify-content: center;
+}
+.pp-star-name{
+  font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 600; color: var(--ink);
+}
+.pp-star-count{
+  display: flex; align-items: center; gap: 6px;
+  font-family: 'DM Serif Display', serif; font-style: italic; font-size: 18px; color: #c47a1a;
+}
+.pp-star-count .stars-vis{ display: inline-flex; gap: 1px; font-size: 14px; }
+.pp-star-add{
+  background: linear-gradient(135deg, #ffd86b, #f4a82c);
+  color: white; border: none; border-radius: 100px;
+  padding: 8px 16px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 700;
+  letter-spacing: 0.5px; cursor: pointer;
+  box-shadow: 0 3px 10px rgba(244, 168, 44, 0.35);
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.12s;
+}
+.pp-star-add:active{ transform: scale(0.9); }
+
+/* Animated star that flies into the slot */
+@keyframes ppStarFly{
+  0%   { transform: translate(0,0) scale(0.6) rotate(0); opacity: 0; }
+  20%  { opacity: 1; }
+  60%  { transform: translate(var(--end-x,0), var(--end-y,-30px)) scale(1.4) rotate(180deg); }
+  100% { transform: translate(var(--end-x,0), var(--end-y,-30px)) scale(0) rotate(360deg); opacity: 0; }
+}
+.pp-flying-star{
+  position: fixed; pointer-events: none; z-index: 10001;
+  font-size: 28px; color: gold;
+  animation: ppStarFly 0.9s ease-out forwards;
+  text-shadow: 0 0 12px rgba(255, 215, 0, 0.8);
+}
+@keyframes ppStarTrail{
+  0%   { transform: scale(0.4); opacity: 1; }
+  100% { transform: scale(1.5) rotate(360deg); opacity: 0; }
+}
+.pp-star-trail{
+  position: fixed; pointer-events: none; z-index: 10000;
+  font-size: 16px; color: #ffe680;
+  animation: ppStarTrail 0.7s ease-out forwards;
+}
+
+/* ── Colour Houses ── */
+.pp-houses-grid{
+  display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+  max-width: 600px; margin: 0 auto;
+}
+.pp-house{
+  position: relative;
+  border-radius: 18px; padding: 24px 16px;
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  color: white;
+  font-family: 'DM Sans', sans-serif;
+  text-align: center;
+  overflow: hidden;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.12);
+  transition: transform 0.2s;
+}
+.pp-house.red    { background: linear-gradient(135deg, #ff5454, #c8262e); --house-color: #d62828; }
+.pp-house.green  { background: linear-gradient(135deg, #4cd97d, #2e8a4f); --house-color: #2e8a4f; }
+.pp-house.blue   { background: linear-gradient(135deg, #4a90e2, #1e5fab); --house-color: #1e5fab; }
+.pp-house.yellow { background: linear-gradient(135deg, #ffd23a, #d49b1a); --house-color: #d49b1a; color: #2a1f00; }
+.pp-house-name{
+  font-family: 'Bagel Fat One', 'DM Serif Display', sans-serif;
+  font-size: 24px; letter-spacing: 1px; text-transform: uppercase;
+}
+.pp-house-pts{
+  font-family: 'Bagel Fat One', 'DM Serif Display', sans-serif;
+  font-size: 56px; line-height: 1;
+  text-shadow: 0 3px 10px rgba(0,0,0,0.18);
+}
+.pp-house-add{
+  background: rgba(255,255,255,0.92); color: var(--house-color);
+  border: none; border-radius: 100px;
+  padding: 9px 18px;
+  font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.12s;
+}
+.pp-house-add:active{ transform: scale(0.92); }
+
+/* House wobble for the milestone celebration */
+@keyframes ppHouseWobble{
+  0%,100% { transform: rotate(0); }
+  20%     { transform: rotate(-4deg) scale(1.05); }
+  40%     { transform: rotate(4deg) scale(1.05); }
+  60%     { transform: rotate(-3deg) scale(1.03); }
+  80%     { transform: rotate(2deg) scale(1.02); }
+}
+.pp-house.wobble{ animation: ppHouseWobble 0.8s ease-in-out; }
+
+/* Number-roll animation for the slot-machine effect */
+@keyframes ppNumRoll{
+  0%   { transform: translateY(-12px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+.pp-num-roll{ animation: ppNumRoll 0.35s cubic-bezier(.34,1.56,.64,1); }
+
+/* Coloured dot burst when a point is added */
+@keyframes ppDotBurst{
+  0%   { transform: translate(0,0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--bx,30px), var(--by,-30px)) scale(0); opacity: 0; }
+}
+.pp-burst-dot{
+  position: absolute; pointer-events: none;
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--burst-color, #fff);
+  animation: ppDotBurst 0.7s ease-out forwards;
+}
+
+/* ── Stunt Training tabs ── */
+.pp-tab-strip{
+  display: flex; gap: 8px; padding: 0 16px 14px;
+  overflow-x: auto; -webkit-overflow-scrolling: touch;
+  border-bottom: 1px solid #f0d4e4;
+  margin-bottom: 18px;
+}
+.pp-tab-strip::-webkit-scrollbar{ display: none; }
+.pp-tab{
+  background: white; border: 1.5px solid #f0d4e4; border-radius: 100px;
+  padding: 8px 18px;
+  font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600;
+  color: var(--stone); cursor: pointer;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.15s;
+}
+.pp-tab.active{
+  background: linear-gradient(135deg, #e91e8c, #c4559a);
+  color: white; border-color: transparent;
+  box-shadow: 0 3px 12px rgba(196,85,154,0.35);
+}
+.pp-tab:active{ transform: scale(0.95); }
+
+/* ── Timer ── */
+.pp-timer{
+  background: linear-gradient(135deg, #faf3ff, #f0e6fa);
+  border: 1.5px solid #e0d0ed; border-radius: 18px;
+  padding: 18px 16px; max-width: 760px; margin: 0 auto;
+  box-shadow: 0 4px 16px rgba(155, 89, 182, 0.12);
+}
+.pp-timer-hd{
+  font-size: 9.5px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase;
+  color: #7a4a99; text-align: center; margin-bottom: 10px;
+}
+.pp-timer-row{ display: flex; align-items: center; justify-content: center; gap: 14px; }
+.pp-timer-digits{
+  font-family: 'Bagel Fat One', 'DM Serif Display', sans-serif;
+  font-size: 52px; color: #6a2a8c; line-height: 1;
+}
+.pp-timer-digits.zero-bounce{ animation: ppTimerBounce 0.6s ease-out 4; }
+@keyframes ppTimerBounce{
+  0%,100% { transform: scale(1); color: #6a2a8c; }
+  50%     { transform: scale(1.25); color: #e91e8c; }
+}
+.pp-timer-controls{ display: flex; gap: 8px; justify-content: center; margin-top: 10px; }
+.pp-timer-btn{
+  padding: 8px 18px;
+  background: white; border: 1.5px solid #d0bce0; border-radius: 100px;
+  font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.5px;
+  color: #6a2a8c; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.12s;
+}
+.pp-timer-btn:active{ transform: scale(0.94); }
+.pp-timer-btn.primary{
+  background: linear-gradient(135deg, #b067dd, #6a2a8c); color: white; border: none;
+  box-shadow: 0 3px 10px rgba(106, 42, 140, 0.3);
+}
+
+/* The scroll wheel (iPhone-style picker) */
+.pp-wheel-wrap{
+  display: flex; gap: 18px; justify-content: center; align-items: center;
+  margin-bottom: 14px;
+}
+.pp-wheel{
+  position: relative;
+  height: 132px; width: 78px;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  -webkit-overflow-scrolling: touch;
+  background: white;
+  border-radius: 14px;
+  border: 1.5px solid #e0d0ed;
+  scrollbar-width: none;
+  /* Top + bottom fade so middle row reads as the "selected" item */
+  mask-image: linear-gradient(180deg, transparent 0%, #000 30%, #000 70%, transparent 100%);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 30%, #000 70%, transparent 100%);
+}
+.pp-wheel::-webkit-scrollbar{ display: none; }
+.pp-wheel-spacer{ height: 44px; scroll-snap-align: none; }
+.pp-wheel-item{
+  height: 44px; display: flex; align-items: center; justify-content: center;
+  scroll-snap-align: center;
+  font-family: 'DM Sans', sans-serif; font-size: 24px; font-weight: 600;
+  color: var(--ink);
+}
+.pp-wheel-label{
+  font-family: 'DM Sans', sans-serif; font-size: 9.5px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: #7a4a99; text-align: center; margin-top: 4px;
+}
+.pp-wheel-colon{
+  font-family: 'Bagel Fat One', sans-serif; font-size: 36px; color: #6a2a8c;
+  align-self: center; padding-bottom: 18px;
+}
 /* PINK PANTHERS FULLOUT */
 .pp-fo-grid{display:grid;grid-template-columns:96px repeat(4,minmax(0,1fr));gap:10px;align-items:stretch;}
 .pp-fo-colhd{display:flex;align-items:center;justify-content:center;padding:7px 14px;background:linear-gradient(135deg,#e91e8c,#c4559a);color:white;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;box-shadow:0 4px 14px rgba(196,85,154,.35);}
@@ -534,6 +905,7 @@ function getCategories(team){
 // ── STATE ──
 let foCache={},clCache={},plansCache={};
 let curTeamId=null,curTeamTab="fullouts",curFoId=null,curPlanId=null;
+
 let activeDedDD=null,pickedCat=null,sections=[],curTplId=null,saveTimer=null;
 let selClIds=new Set();
 // Timers
@@ -694,15 +1066,34 @@ function openTeam(teamId){
   if(coordWrap)coordWrap.style.display=teamId==="pink_kitties"?"block":"none";
   // Hide class plans for noClassPlan teams
   document.querySelectorAll(".team-nav-btn").forEach(b=>{if(b.textContent==="class plans")b.style.display=t.noClassPlan?"none":"block";});
-  // Go straight to coord for pink kitties
+  // Pink Kitties: jump straight to coordination
   if(teamId==="pink_kitties"){curTeamTab="coord";document.querySelectorAll(".team-nav-btn").forEach(b=>b.classList.remove("active"));const coordBtn=document.querySelector("#coord-nav-btn-wrap .team-nav-btn");if(coordBtn)coordBtn.classList.add("active");}
-  // Go straight to stunt tracker for pink panthers
-  if(teamId==="pink_panthers"){curTeamTab="pp_stunts";document.querySelectorAll(".team-nav-btn").forEach(b=>b.classList.remove("active"));}
+  // Pink Panthers: jump straight to the new tile home and hide the sidebar entirely
+  if(teamId==="pink_panthers"){curTeamTab="pp_home";}
+  // Hide/show the team sidebar based on team
+  const teamNav=document.getElementById("team-nav");
+  if(teamNav)teamNav.style.display=teamId==="pink_panthers"?"none":"";
   showScreen("team-view");renderTeamTab();
 }
 function goBackToTeam(){stopSectionTimer();showScreen("team-view");renderTeamTab();}
 function teamTab(tab,btn){curTeamTab=tab;document.querySelectorAll(".team-nav-btn").forEach(b=>b.classList.remove("active"));if(btn)btn.classList.add("active");renderTeamTab();}
-function renderTeamTab(){const c=document.getElementById("team-content");if(!c)return;if(curTeamTab==="fullouts")renderFoView(c);else if(curTeamTab==="plans")renderPlansView(c);else if(curTeamTab==="analytics")renderTeamAnalytics(c);else if(curTeamTab==="checklist")renderChecklistView(c);else if(curTeamTab==="coord")renderCoordView(c);else if(curTeamTab==="pp_stunts")renderPPStunts(c);else if(curTeamTab==="pp_groups")renderPPGroups(c);else if(curTeamTab==="pp_session")renderPPSession(c);else if(curTeamTab==="pp_team_stats")renderPPTeamStats(c);else if(curTeamTab==="pp_fullout")renderPPFullout(c);}
+function renderTeamTab(){
+  const c=document.getElementById("team-content");if(!c)return;
+  if(curTeamTab==="fullouts")renderFoView(c);
+  else if(curTeamTab==="plans")renderPlansView(c);
+  else if(curTeamTab==="analytics")renderTeamAnalytics(c);
+  else if(curTeamTab==="checklist")renderChecklistView(c);
+  else if(curTeamTab==="coord")renderCoordView(c);
+  // Pink Panthers screens
+  else if(curTeamTab==="pp_home")renderPPHome(c);
+  else if(curTeamTab==="pp_stunt_training")renderPPStuntTraining(c);
+  else if(curTeamTab==="pp_groups")renderPPGroups(c);
+  else if(curTeamTab==="pp_session")renderPPSession(c);
+  else if(curTeamTab==="pp_team_stats")renderPPTeamStats(c);
+  else if(curTeamTab==="pp_fullout")renderPPFullout(c);
+  else if(curTeamTab==="pp_star_chart")renderPPStarChart(c);
+  else if(curTeamTab==="pp_colour_houses")renderPPColourHouses(c);
+}
 
 // ── FULLOUT VIEW ──
 function renderFoView(container){
@@ -1274,6 +1665,16 @@ let ppListener=null,ppCache={};
 let ppFoCache={}; // { "YYYY-MM-DD": {date, cells:{...}, updated_at} }
 let ppFoCurDate=null; // date string the user is currently viewing
 let ppFoPopup=null; // { flyer, stuntId, deductions:Set } when popup open
+let ppStarsCache={}; // { athleteId: {name, count, updated_at} }
+let ppHousesCache={red:0,green:0,blue:0,yellow:0,updated_at:null};
+let ppStuntTrainingTab="pp_s1"; // currently-active tab on the Stunt Training sub-page
+
+// Pink Panthers full team roster (used for the Star Chart). Keep the casing they want shown.
+const PP_ROSTER=[
+  "Paris","Addi","Amarlie","Azarlah","Caitie","Elly","Emma","Farrah","Freyah","Jess","Isla",
+  "Amarni","Lilah","Nat","Ruby A","Ruby B","Ruby H","Sienna","Ivy","Talia","Taylor"
+];
+function ppAthleteId(name){return name.toLowerCase().replace(/[^a-z0-9]+/g,"_");}
 
 // Deduction & non-performance options shown in the MISS popup
 const PP_DEDUCT_INFRACTIONS=[
@@ -1304,6 +1705,8 @@ function ppNoperfLabel(id){const o=PP_NOPERF_OPTIONS.find(x=>x.id===id);return o
 function ppCol(){return db.collection("teams").doc("pink_panthers").collection("stunt_sessions");}
 function ppNotesCol(){return db.collection("teams").doc("pink_panthers").collection("stunt_notes");}
 function ppFoCol(){return db.collection("teams").doc("pink_panthers").collection("pp_fullouts");}
+function ppStarsCol(){return db.collection("teams").doc("pink_panthers").collection("pp_stars");}
+function ppHousesDoc(){return db.collection("teams").doc("pink_panthers").collection("pp_misc").doc("houses");}
 function ppNotesCache(){return window._ppNotes||{};}
 
 function startPPListener(){
@@ -1311,11 +1714,8 @@ function startPPListener(){
   ppListener=ppCol().orderBy("date","desc").limit(200).onSnapshot(snap=>{
     ppCache={};
     snap.docs.forEach(d=>{const s=d.data();const key=s.stuntId+"_"+s.groupId;if(!ppCache[key])ppCache[key]=[];ppCache[key].push(s);});
-    // Only re-render the team stats screen (which shows aggregate data and benefits from live updates).
-    // pp_stunts and pp_groups screens DO NOT auto re-render: rebuilding their HTML mid-tap was destroying
-    // buttons before the click event could fire on iPad/desktop, causing the random "tap does nothing" bug.
-    // They'll refresh whenever the user navigates back to them.
     if(curTeamTab==="pp_team_stats")renderTeamTab();
+    else if(curTeamTab==="pp_home"){updatePPSessionPulse();}
   });
   ppNotesCol().onSnapshot(snap=>{
     window._ppNotes={};snap.docs.forEach(d=>{window._ppNotes[d.id]=d.data();});
@@ -1327,67 +1727,577 @@ function startPPListener(){
     // Only refresh the fullout screen if the popup is NOT open — otherwise we'd interrupt the user mid-selection.
     if(curTeamTab==="pp_fullout"&&!ppFoPopup)renderTeamTab();
   });
+  ppStarsCol().onSnapshot(snap=>{
+    ppStarsCache={};
+    snap.docs.forEach(d=>{ppStarsCache[d.id]=d.data();});
+    if(curTeamTab==="pp_star_chart")renderTeamTab();
+  });
+  ppHousesDoc().onSnapshot(d=>{
+    if(d.exists){const data=d.data();ppHousesCache={...ppHousesCache,...data};}
+    if(curTeamTab==="pp_colour_houses")renderTeamTab();
+  });
 }
 
-function renderPPStunts(container){
+// Returns true if any session was logged today (for the Stunt Training tile pulse)
+function ppHasTodaySession(){
+  const today=new Date().toISOString().split("T")[0];
+  return Object.values(ppCache).some(arr=>arr.some(s=>s.date===today));
+}
+function updatePPSessionPulse(){
+  const tile=document.querySelector("[data-pp-home-tile='stunt_training']");
+  if(!tile)return;
+  tile.classList.toggle("pp-pulse",ppHasTodaySession());
+}
+
+// ── PINK PANTHERS · SOUND ──
+// Subtle UI sounds, all generated via Web Audio (no external files). Mute persists in localStorage.
+let ppMuted = localStorage.getItem("pp_muted") === "1";
+function ppToggleMute(){
+  ppMuted = !ppMuted;
+  if(ppMuted)localStorage.setItem("pp_muted","1"); else localStorage.removeItem("pp_muted");
+  // Re-render home so the icon flips
+  if(curTeamTab==="pp_home")renderTeamTab();
+}
+// Tiny beep helper — kind: "tap"|"star"|"point"|"hit"|"timer"
+function ppSound(kind){
+  if(ppMuted)return;
+  try{
+    ensureAudio(); if(!audioCtx)return;
+    const now = audioCtx.currentTime;
+    const make = (freq,start,dur,vol=0.18,type="sine")=>{
+      const osc=audioCtx.createOscillator(),g=audioCtx.createGain();
+      osc.type=type; osc.frequency.value=freq;
+      osc.connect(g); g.connect(audioCtx.destination);
+      g.gain.setValueAtTime(vol,now+start);
+      g.gain.exponentialRampToValueAtTime(0.001,now+start+dur);
+      osc.start(now+start); osc.stop(now+start+dur);
+    };
+    if(kind==="tap"){ make(880,0,0.05,0.1,"sine"); }
+    else if(kind==="star"){ make(880,0,0.08,0.18); make(1320,0.06,0.12,0.18); }
+    else if(kind==="point"){ make(660,0,0.08,0.18); make(990,0.07,0.12,0.18); }
+    else if(kind==="hit"){ [523,659,784,1047].forEach((f,i)=>make(f,i*0.05,0.18,0.16)); }
+    else if(kind==="timer"){ [880,880,1175].forEach((f,i)=>make(f,i*0.13,0.2,0.22,"triangle")); }
+  }catch(e){}
+}
+// Attach a one-time listener to enable the audio context (iOS rule)
+function ppPrimeAudio(){ ensureAudio(); }
+document.addEventListener("pointerdown", ppPrimeAudio, {once:true, passive:true});
+
+
+
+// ── PP HOME (the new 5-tile landing page) ──
+function renderPPHome(container){
   startPPListener();
   const team=getTeam("pink_panthers");
   const stunts=team.ppStunts||[];
-  const icons=["★","✦","✶","◆"];
-  let html=`<div style="width:100%;height:100%;overflow-y:auto;padding:24px;background:linear-gradient(135deg,#fff0f8,#f8f0ff);box-sizing:border-box" id="pp-home-wrap">
-    <div style="font-family:'DM Serif Display',serif;font-size:28px;font-style:italic;text-align:center;color:var(--ink);margin-bottom:4px">Pink Panthers</div>
-    <div style="text-align:center;font-size:12px;color:var(--stone);margin-bottom:24px;letter-spacing:1px;text-transform:uppercase">select a stunt to track</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:600px;margin:0 auto">`;
-  stunts.forEach((s,i)=>{
-    const sessions=Object.values(ppCache).flat().filter(x=>x.stuntId===s.id);
-    const totalHits=sessions.reduce((a,x)=>a+(x.hits||0),0);
-    const totalAtts=sessions.reduce((a,x)=>a+(x.attempts||0),0);
-    const pct=totalAtts>0?Math.round((totalHits/totalAtts)*100):null;
-    html+=`<button type="button" data-pp-action="select-stunt" data-pp-stunt-id="${esc(s.id)}" style="background:white;border:2px solid var(--border);border-radius:16px;padding:24px 20px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;transition:all .2s;width:100%;font-family:'DM Sans',sans-serif;-webkit-tap-highlight-color:rgba(196,85,154,.2);touch-action:manipulation">
-      <div style="font-family:'DM Serif Display',serif;font-size:32px;font-style:italic;color:var(--pink);line-height:1;pointer-events:none">${icons[i]||"★"}</div>
-      <div style="font-size:16px;font-weight:700;color:var(--ink);pointer-events:none">${esc(s.label)}</div>
-      <div style="font-size:11px;color:var(--stone);line-height:1.4;pointer-events:none">${esc(s.desc)}</div>
-      ${pct!==null?`<div style="margin-top:4px;font-size:11px;font-weight:700;color:${pctCol(pct)};pointer-events:none">${pct}% overall</div>`:""}
-    </button>`;
+
+  // Get the "today" pulse state for the Stunt Training tile
+  const hasToday = ppHasTodaySession();
+
+  // Aggregate stats for tile glance numbers
+  const allSessions = Object.values(ppCache).flat();
+  const totalHits = allSessions.reduce((a,s)=>a+(s.hits||0),0);
+  const totalAtts = allSessions.reduce((a,s)=>a+(s.attempts||0),0);
+  const overallPct = totalAtts>0 ? Math.round((totalHits/totalAtts)*100) : null;
+
+  const todayFo = ppFoCache[new Date().toISOString().split("T")[0]];
+  const foDed = todayFo ? ppFoTotalDeduction(todayFo) : 0;
+
+  const totalStars = Object.values(ppStarsCache).reduce((a,s)=>a+(s.count||0),0);
+  const housePts = (ppHousesCache.red||0)+(ppHousesCache.green||0)+(ppHousesCache.blue||0)+(ppHousesCache.yellow||0);
+
+  // Build sparkle decorations (random positions/timings)
+  let sparkles = "";
+  for(let i=0;i<14;i++){
+    const left = Math.floor(Math.random()*95);
+    const top = Math.floor(Math.random()*90);
+    const dur = (5+Math.random()*6).toFixed(1);
+    const delay = (Math.random()*8).toFixed(1);
+    const dx = (Math.random()*80-40).toFixed(0);
+    const dy = (-30 - Math.random()*70).toFixed(0);
+    const sym = ["✦","✧","٭","✩","★"][Math.floor(Math.random()*5)];
+    sparkles += `<span class="pp-sparkle" style="left:${left}%;top:${top}%;--dx:${dx}px;--dy:${dy}px;--dur:${dur}s;--delay:${delay}s;font-size:${10+Math.random()*10}px">${sym}</span>`;
+  }
+
+  let html = `
+  <div class="pp-bigscreen-scope pp-gradient-bg" style="position:relative;flex:1;overflow-y:auto;padding:20px 18px 30px;box-sizing:border-box" id="pp-home-wrap">
+    ${sparkles}
+    <button type="button" class="pp-mute-btn" data-pp-home-action="mute" title="${ppMuted?"Unmute":"Mute"}">${ppMuted?"🔇":"🔊"}</button>
+
+    <div style="text-align:center;margin-top:8px;margin-bottom:6px">
+      <div class="pp-wordmark">Pink Panthers</div>
+      <div class="pp-tagline">${["let's go panthers 💖","today's the day ✨","one stunt at a time","slay slay slay"][Math.floor(Math.random()*4)]}</div>
+    </div>
+
+    <!-- Primary tiles -->
+    <div class="pp-tile-grid row-primary">
+      <button type="button" class="pp-tile big ${hasToday?"pp-pulse":""}" data-pp-home-tile="stunt_training" data-pp-home-action="goto-stunts" style="--tile-accent:#e91e8c">
+        <div class="pp-tile-icon" style="color:#e91e8c">★</div>
+        <div class="pp-tile-title">Stunt Training</div>
+        <div class="pp-tile-sub">${overallPct!==null?overallPct+"% overall":"track every hit"}</div>
+      </button>
+      <button type="button" class="pp-tile big" data-pp-home-action="goto-fullout" style="--tile-accent:#c4559a;background:linear-gradient(135deg,#fff5fa 0%,#ffeaf5 100%)">
+        <div class="pp-tile-icon">💪</div>
+        <div class="pp-tile-title" style="color:#9b3878">Fullout Tracker</div>
+        <div class="pp-tile-sub">${foDed>0?"−"+foDed.toFixed(2)+" today":"score every fullout"}</div>
+      </button>
+    </div>
+
+    <!-- Secondary tiles -->
+    <div class="pp-tile-grid row-secondary">
+      <button type="button" class="pp-tile" data-pp-home-action="goto-team-stats" style="--tile-accent:#1a1a1a;background:linear-gradient(135deg,#fafafa 0%,#f0f0f0 100%)">
+        <div class="pp-tile-icon" style="color:#c4559a">♛</div>
+        <div class="pp-tile-title" style="font-size:18px">Team Stats</div>
+        <div class="pp-tile-sub">crowns + ranks</div>
+      </button>
+      <button type="button" class="pp-tile" data-pp-home-action="goto-stars" style="--tile-accent:#e8b942;background:linear-gradient(135deg,#fffbe6 0%,#fff3c4 100%)">
+        <div class="pp-tile-icon" style="color:#d49b1a">⭐</div>
+        <div class="pp-tile-title" style="font-size:18px">Star Chart</div>
+        <div class="pp-tile-sub">${totalStars} stars total</div>
+      </button>
+      <button type="button" class="pp-tile" data-pp-home-action="goto-houses" style="--tile-accent:#9b59b6;background:conic-gradient(from 45deg, #ffe5e5, #e5fff0, #e5f1ff, #fff8e5, #ffe5e5)">
+        <div class="pp-tile-icon">🏆</div>
+        <div class="pp-tile-title" style="font-size:18px">Colour Houses</div>
+        <div class="pp-tile-sub">${housePts} pts logged</div>
+      </button>
+    </div>
+
+    <!-- Timer -->
+    <div class="pp-timer" id="pp-timer-card">
+      <div class="pp-timer-hd">⏱ practice timer</div>
+      ${ppTimerHtml()}
+    </div>
+  </div>`;
+
+  container.innerHTML = html;
+
+  // One delegated handler for the whole home page
+  const wrap = document.getElementById("pp-home-wrap");
+  if(wrap && !wrap._ppDelegated){
+    wrap._ppDelegated = true;
+    wrap.addEventListener("click", e=>{
+      // Tap-bounce animation on tiles
+      const tile = e.target.closest(".pp-tile");
+      if(tile){
+        tile.classList.remove("bouncing");
+        // Force reflow so the animation can replay
+        void tile.offsetWidth;
+        tile.classList.add("bouncing");
+      }
+      const btn = e.target.closest("[data-pp-home-action]");
+      if(!btn) return;
+      const action = btn.getAttribute("data-pp-home-action");
+      if(action==="goto-stunts"){ ppSound("tap"); curTeamTab="pp_stunt_training"; renderTeamTab(); }
+      else if(action==="goto-fullout"){ ppSound("tap"); curTeamTab="pp_fullout"; renderTeamTab(); }
+      else if(action==="goto-team-stats"){ ppSound("tap"); curTeamTab="pp_team_stats"; renderTeamTab(); }
+      else if(action==="goto-stars"){ ppSound("tap"); curTeamTab="pp_star_chart"; renderTeamTab(); }
+      else if(action==="goto-houses"){ ppSound("tap"); curTeamTab="pp_colour_houses"; renderTeamTab(); }
+      else if(action==="mute"){ ppToggleMute(); }
+      else if(action==="timer-start"){ ppTimerStart(); }
+      else if(action==="timer-pause"){ ppTimerPause(); }
+      else if(action==="timer-reset"){ ppTimerReset(); }
+    });
+    // Wheel scroll → update internal timer state (without re-rendering)
+    wrap.addEventListener("scroll", e=>{
+      if(e.target.classList && e.target.classList.contains("pp-wheel")) ppTimerWheelChanged(e.target);
+    }, true);
+  }
+
+  // Initialize the wheel scroll position once the DOM is mounted
+  setTimeout(ppTimerInitWheels, 0);
+}
+
+// ── PP STUNT TRAINING (sub-page with tabs across the top) ──
+function renderPPStuntTraining(container){
+  startPPListener();
+  const team = getTeam("pink_panthers");
+  const stunts = team.ppStunts||[];
+  // Default to first stunt if the saved tab isn't valid
+  if(!stunts.find(s=>s.id===ppStuntTrainingTab)) ppStuntTrainingTab = stunts[0]?stunts[0].id:"pp_s1";
+  const activeStunt = stunts.find(s=>s.id===ppStuntTrainingTab) || stunts[0];
+
+  let html = `
+  <div class="pp-bigscreen-scope" style="flex:1;overflow-y:auto;background:linear-gradient(160deg,#fff0f8,#f8f0ff);box-sizing:border-box" id="pp-stunt-training-wrap">
+    <div style="padding:18px 18px 0;display:flex;align-items:center;gap:10px;margin-bottom:14px">
+      <button type="button" data-pp-st-action="back" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--stone);padding:0">&#8592;</button>
+      <div>
+        <div style="font-family:'Bagel Fat One','DM Serif Display',sans-serif;font-size:28px;line-height:1;color:var(--ink)">Stunt Training</div>
+        <div style="font-size:10px;color:var(--stone);letter-spacing:1.5px;text-transform:uppercase;margin-top:3px">${esc(activeStunt?activeStunt.desc:"")}</div>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="pp-tab-strip">`;
+  stunts.forEach(s=>{
+    html += `<button type="button" class="pp-tab ${s.id===ppStuntTrainingTab?"active":""}" data-pp-st-action="set-tab" data-pp-st-tab="${esc(s.id)}">${esc(s.label)}</button>`;
   });
-  // Team Stats + Fullout tiles (paired bottom row)
-  html+=`<button type="button" data-pp-action="open-team-stats" style="background:linear-gradient(135deg,#1a1a1a,#2d1a2d);border:2px solid #2d1a2d;border-radius:16px;padding:22px 16px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;text-align:center;transition:all .2s;width:100%;font-family:'DM Sans',sans-serif;-webkit-tap-highlight-color:rgba(196,85,154,.2);touch-action:manipulation">
-    <div style="font-family:'DM Serif Display',serif;font-size:26px;font-style:italic;color:var(--pink);line-height:1;pointer-events:none">♛</div>
-    <div style="display:flex;flex-direction:column;gap:2px;align-items:flex-start;pointer-events:none">
-      <div style="font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#888">whole team</div>
-      <div style="font-size:16px;font-weight:700;color:white">Team Stats</div>
-    </div>
-  </button>
-  <button type="button" data-pp-action="open-fullout" style="background:linear-gradient(135deg,#c4559a,#9b3878);border:2px solid #9b3878;border-radius:16px;padding:22px 16px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;text-align:center;transition:all .2s;width:100%;font-family:'DM Sans',sans-serif;-webkit-tap-highlight-color:rgba(255,255,255,.2);touch-action:manipulation;box-shadow:0 4px 18px rgba(196,85,154,.25)">
-    <div style="font-size:26px;line-height:1;pointer-events:none">💪</div>
-    <div style="display:flex;flex-direction:column;gap:2px;align-items:flex-start;pointer-events:none">
-      <div style="font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.7)">today's</div>
-      <div style="font-size:16px;font-weight:700;color:white">Fullout</div>
-    </div>
-  </button>`;
-  html+=`</div></div>`;
-  container.innerHTML=html;
-  // Event delegation — survives any future re-renders so taps can never be lost mid-render
-  const wrap=document.getElementById("pp-home-wrap");
-  if(wrap&&!wrap._ppDelegated){
-    wrap._ppDelegated=true;
-    wrap.addEventListener("click",e=>{
-      const btn=e.target.closest("[data-pp-action]");
-      if(!btn)return;
-      const action=btn.getAttribute("data-pp-action");
-      if(action==="select-stunt")selectPPStunt(btn.getAttribute("data-pp-stunt-id"));
-      else if(action==="open-team-stats"){curTeamTab="pp_team_stats";renderTeamTab();}
-      else if(action==="open-fullout"){curTeamTab="pp_fullout";renderTeamTab();}
+  html += `</div>`;
+
+  // Groups grid for the active stunt
+  if(activeStunt && activeStunt.groups && activeStunt.groups.length){
+    html += `<div style="padding:0 18px 60px"><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px;max-width:760px;margin:0 auto">`;
+    activeStunt.groups.forEach(g=>{
+      const sessions = (ppCache[activeStunt.id+"_"+g.id]||[]);
+      const last = sessions[0];
+      const pct = last && last.attempts>0 ? Math.round((last.hits/last.attempts)*100) : null;
+      const trend = calcTrend(sessions);
+      html += `<button type="button" class="pp-tile" data-pp-st-action="select-group" data-pp-st-group="${esc(g.id)}" style="--tile-accent:#e91e8c;min-height:170px;padding:18px 14px">
+        <div style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#e91e8c,#9b59b6);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:26px;font-style:italic;color:white;pointer-events:none">${esc(g.name[0])}</div>
+        <div style="font-size:14px;font-weight:700;color:var(--ink);pointer-events:none">${esc(g.name)}'s group</div>
+        ${pct!==null?`<div style="font-size:12px;font-weight:700;color:${pctCol(pct)};pointer-events:none">${pct}% last</div>`:""}
+        ${trend?`<div style="font-size:11px;pointer-events:none" class="${trend.cls}">${trend.arrow}</div>`:""}
+      </button>`;
+    });
+    html += `</div></div>`;
+  } else {
+    html += `<div style="padding:40px;text-align:center;color:var(--stone);font-style:italic">No groups set up yet for ${esc(activeStunt?activeStunt.label:"this stunt")}.</div>`;
+  }
+  html += `</div>`;
+
+  container.innerHTML = html;
+
+  const wrap = document.getElementById("pp-stunt-training-wrap");
+  if(wrap && !wrap._ppDelegated){
+    wrap._ppDelegated = true;
+    wrap.addEventListener("click", e=>{
+      const tile = e.target.closest(".pp-tile");
+      if(tile){ tile.classList.remove("bouncing"); void tile.offsetWidth; tile.classList.add("bouncing"); }
+      const btn = e.target.closest("[data-pp-st-action]");
+      if(!btn) return;
+      const action = btn.getAttribute("data-pp-st-action");
+      if(action==="back"){ ppSound("tap"); curTeamTab="pp_home"; renderTeamTab(); }
+      else if(action==="set-tab"){ ppSound("tap"); ppStuntTrainingTab = btn.getAttribute("data-pp-st-tab"); renderTeamTab(); }
+      else if(action==="select-group"){ ppSound("tap"); ppCurStunt = ppStuntTrainingTab; selectPPGroup(btn.getAttribute("data-pp-st-group")); }
     });
   }
 }
 
-function selectPPStunt(stuntId){ppCurStunt=stuntId;curTeamTab="pp_groups";renderTeamTab();}
+// ── PP STAR CHART ──
+async function ppAddStar(athleteName, sourceEl){
+  const id = ppAthleteId(athleteName);
+  const cur = ppStarsCache[id] || {name:athleteName, count:0};
+  const newCount = (cur.count||0) + 1;
+  const updated = {name:athleteName, count:newCount, updated_at:new Date().toISOString()};
+  ppStarsCache[id] = updated; // optimistic
+  ppSound("star");
+
+  // Fly-in animation: spawn a star at the button and animate it into the row
+  if(sourceEl){
+    const r = sourceEl.getBoundingClientRect();
+    const target = sourceEl.closest(".pp-star-row");
+    const tr = target ? target.getBoundingClientRect() : r;
+    const star = document.createElement("div");
+    star.className = "pp-flying-star";
+    star.textContent = "⭐";
+    star.style.left = (r.left + r.width/2 - 14) + "px";
+    star.style.top = (r.top + r.height/2 - 14) + "px";
+    star.style.setProperty("--end-x", (tr.left + 30 - (r.left + r.width/2)) + "px");
+    star.style.setProperty("--end-y", (tr.top + tr.height/2 - (r.top + r.height/2)) + "px");
+    document.body.appendChild(star);
+    setTimeout(()=>star.remove(), 950);
+    // Sparkle trail
+    for(let i=0;i<4;i++){
+      const sp = document.createElement("div");
+      sp.className = "pp-star-trail";
+      sp.textContent = ["✦","✧","★"][Math.floor(Math.random()*3)];
+      sp.style.left = (r.left + r.width/2 + (Math.random()*40-20)) + "px";
+      sp.style.top  = (r.top + r.height/2 + (Math.random()*40-20)) + "px";
+      sp.style.animationDelay = (i*0.08) + "s";
+      document.body.appendChild(sp);
+      setTimeout(()=>sp.remove(), 800);
+    }
+  }
+
+  // Glow the row if we just hit a multiple of 10
+  if(newCount % 10 === 0){
+    setTimeout(()=>{
+      const row = document.querySelector(`[data-pp-star-row="${id}"]`);
+      if(row){ row.classList.add("glow"); setTimeout(()=>row.classList.remove("glow"), 2000); }
+      launchConfetti();
+    }, 600);
+  }
+
+  // Re-render after the flight animation finishes so the count updates
+  setTimeout(()=>{ if(curTeamTab==="pp_star_chart") renderTeamTab(); }, 600);
+
+  try{ await ppStarsCol().doc(id).set(updated); }
+  catch(e){ console.error("Failed to save star:", e); }
+}
+
+function renderPPStarChart(container){
+  startPPListener();
+  let html = `
+  <div class="pp-bigscreen-scope" style="flex:1;overflow-y:auto;background:linear-gradient(160deg,#fffbe6,#fff3c4);box-sizing:border-box;padding:18px 18px 60px" id="pp-star-wrap">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+      <button type="button" data-pp-star-action="back" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--stone);padding:0">&#8592;</button>
+      <div>
+        <div style="font-family:'Bagel Fat One','DM Serif Display',sans-serif;font-size:28px;line-height:1;color:var(--ink)">Star Chart ⭐</div>
+        <div style="font-size:10px;color:var(--stone);letter-spacing:1.5px;text-transform:uppercase;margin-top:3px">tap + to give a star</div>
+      </div>
+    </div>
+    <div style="max-width:720px;margin:0 auto">`;
+
+  // Sort by stars desc, then alphabetically
+  const sorted = [...PP_ROSTER].sort((a,b)=>{
+    const ca = (ppStarsCache[ppAthleteId(a)]||{}).count||0;
+    const cb = (ppStarsCache[ppAthleteId(b)]||{}).count||0;
+    if(cb !== ca) return cb - ca;
+    return a.localeCompare(b);
+  });
+
+  sorted.forEach(name=>{
+    const id = ppAthleteId(name);
+    const count = (ppStarsCache[id]||{}).count || 0;
+    // Visual stars (up to 10 visible)
+    const visStars = "⭐".repeat(Math.min(count, 10));
+    const overflow = count > 10 ? `<span style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;color:#c47a1a;margin-left:4px">+${count-10}</span>` : "";
+    html += `<div class="pp-star-row" data-pp-star-row="${esc(id)}">
+      <div class="pp-star-avatar">${esc(name[0])}</div>
+      <div class="pp-star-name">${esc(name)}</div>
+      <div class="pp-star-count">
+        ${count>0 ? `<span class="stars-vis">${visStars}</span>${overflow} <span style="font-size:14px;color:var(--stone);font-style:normal;font-family:'DM Sans',sans-serif;font-weight:700;margin-left:4px">${count}</span>` : `<span style="font-size:13px;color:var(--stone);font-style:normal;font-family:'DM Sans',sans-serif">no stars yet</span>`}
+      </div>
+      <button type="button" class="pp-star-add" data-pp-star-action="add" data-pp-star-name="${esc(name)}">+ ⭐</button>
+    </div>`;
+  });
+  html += `</div></div>`;
+
+  container.innerHTML = html;
+
+  const wrap = document.getElementById("pp-star-wrap");
+  if(wrap && !wrap._ppDelegated){
+    wrap._ppDelegated = true;
+    wrap.addEventListener("click", e=>{
+      const btn = e.target.closest("[data-pp-star-action]");
+      if(!btn) return;
+      const action = btn.getAttribute("data-pp-star-action");
+      if(action==="back"){ ppSound("tap"); curTeamTab="pp_home"; renderTeamTab(); }
+      else if(action==="add"){
+        const name = btn.getAttribute("data-pp-star-name");
+        ppAddStar(name, btn);
+      }
+    });
+  }
+}
+
+// ── PP COLOUR HOUSES ──
+async function ppAddHousePoint(color, sourceEl){
+  ppHousesCache[color] = (ppHousesCache[color]||0) + 1;
+  ppHousesCache.updated_at = new Date().toISOString();
+  ppSound("point");
+
+  // Update the visible number with a slot-machine roll
+  const numEl = document.querySelector(`[data-pp-house-num="${color}"]`);
+  if(numEl){
+    numEl.textContent = ppHousesCache[color];
+    numEl.classList.remove("pp-num-roll"); void numEl.offsetWidth; numEl.classList.add("pp-num-roll");
+  }
+
+  // Coloured dot burst
+  if(sourceEl){
+    const houseColors = {red:"#ff6b6b", green:"#4cd97d", blue:"#4a90e2", yellow:"#ffd23a"};
+    const r = sourceEl.getBoundingClientRect();
+    for(let i=0;i<8;i++){
+      const dot = document.createElement("div");
+      dot.className = "pp-burst-dot";
+      const angle = (i / 8) * Math.PI * 2;
+      const dist = 60 + Math.random()*30;
+      dot.style.left = (r.left + r.width/2 - 5) + "px";
+      dot.style.top  = (r.top + r.height/2 - 5) + "px";
+      dot.style.position = "fixed";
+      dot.style.setProperty("--bx", (Math.cos(angle)*dist) + "px");
+      dot.style.setProperty("--by", (Math.sin(angle)*dist) + "px");
+      dot.style.setProperty("--burst-color", houseColors[color]);
+      document.body.appendChild(dot);
+      setTimeout(()=>dot.remove(), 750);
+    }
+  }
+
+  // Milestone (every 50): wobble the house + confetti
+  if(ppHousesCache[color] % 50 === 0){
+    const houseEl = document.querySelector(`[data-pp-house="${color}"]`);
+    if(houseEl){
+      houseEl.classList.remove("wobble"); void houseEl.offsetWidth; houseEl.classList.add("wobble");
+    }
+    setTimeout(launchConfetti, 200);
+  }
+
+  try{ await ppHousesDoc().set(ppHousesCache, {merge:true}); }
+  catch(e){ console.error("Failed to save house point:", e); }
+}
+
+function renderPPColourHouses(container){
+  startPPListener();
+  const colors = [
+    {id:"red",    label:"Red"},
+    {id:"green",  label:"Green"},
+    {id:"blue",   label:"Blue"},
+    {id:"yellow", label:"Yellow"}
+  ];
+
+  let html = `
+  <div class="pp-bigscreen-scope" style="flex:1;overflow-y:auto;background:linear-gradient(160deg,#fff0f8,#f8e6f3);box-sizing:border-box;padding:18px 18px 60px" id="pp-houses-wrap">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">
+      <button type="button" data-pp-house-action="back" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--stone);padding:0">&#8592;</button>
+      <div>
+        <div style="font-family:'Bagel Fat One','DM Serif Display',sans-serif;font-size:28px;line-height:1;color:var(--ink)">Colour Houses 🏆</div>
+        <div style="font-size:10px;color:var(--stone);letter-spacing:1.5px;text-transform:uppercase;margin-top:3px">tap to add a point — confetti every 50!</div>
+      </div>
+    </div>
+    <div class="pp-houses-grid">`;
+  colors.forEach(c=>{
+    const pts = ppHousesCache[c.id] || 0;
+    html += `<div class="pp-house ${c.id}" data-pp-house="${c.id}">
+      <div class="pp-house-name">${esc(c.label)}</div>
+      <div class="pp-house-pts" data-pp-house-num="${c.id}">${pts}</div>
+      <button type="button" class="pp-house-add" data-pp-house-action="add" data-pp-house-color="${c.id}">+ point</button>
+    </div>`;
+  });
+  html += `</div></div>`;
+
+  container.innerHTML = html;
+
+  const wrap = document.getElementById("pp-houses-wrap");
+  if(wrap && !wrap._ppDelegated){
+    wrap._ppDelegated = true;
+    wrap.addEventListener("click", e=>{
+      const btn = e.target.closest("[data-pp-house-action]");
+      if(!btn) return;
+      const action = btn.getAttribute("data-pp-house-action");
+      if(action==="back"){ ppSound("tap"); curTeamTab="pp_home"; renderTeamTab(); }
+      else if(action==="add"){
+        ppAddHousePoint(btn.getAttribute("data-pp-house-color"), btn);
+      }
+    });
+  }
+}
+
+// ── PP TIMER (iPhone-style scroll wheels) ──
+let ppTimerInterval = null;
+let ppTimerSecs = 0;       // remaining seconds when running
+let ppTimerSetSecs = 0;    // the "set" duration from the wheels
+let ppTimerRunning = false;
+let ppTimerWheelMin = 5;   // initial: 5:00
+let ppTimerWheelSec = 0;
+function ppTimerHtml(){
+  // Build minute & second wheels
+  const mins = []; for(let i=0;i<=30;i++) mins.push(i);
+  const secs = [0,15,30,45];
+  const fmt = n => String(n).padStart(2,"0");
+  const showRunning = ppTimerRunning || ppTimerSecs > 0;
+  const dispM = Math.floor(ppTimerSecs/60), dispS = ppTimerSecs%60;
+  return `
+    ${showRunning ? `
+      <div class="pp-timer-row" style="margin-bottom:6px">
+        <span class="pp-timer-digits ${ppTimerSecs===0?"zero-bounce":""}" id="pp-timer-disp">${fmt(dispM)}:${fmt(dispS)}</span>
+      </div>
+    ` : `
+      <div class="pp-wheel-wrap">
+        <div>
+          <div class="pp-wheel" data-pp-wheel="min">
+            <div class="pp-wheel-spacer"></div>
+            ${mins.map(n=>`<div class="pp-wheel-item" data-val="${n}">${n}</div>`).join("")}
+            <div class="pp-wheel-spacer"></div>
+          </div>
+          <div class="pp-wheel-label">min</div>
+        </div>
+        <div class="pp-wheel-colon">:</div>
+        <div>
+          <div class="pp-wheel" data-pp-wheel="sec">
+            <div class="pp-wheel-spacer"></div>
+            ${secs.map(n=>`<div class="pp-wheel-item" data-val="${n}">${fmt(n)}</div>`).join("")}
+            <div class="pp-wheel-spacer"></div>
+          </div>
+          <div class="pp-wheel-label">sec</div>
+        </div>
+      </div>
+    `}
+    <div class="pp-timer-controls">
+      ${ppTimerRunning
+        ? `<button type="button" class="pp-timer-btn primary" data-pp-home-action="timer-pause">⏸ pause</button>`
+        : `<button type="button" class="pp-timer-btn primary" data-pp-home-action="timer-start">▶ start</button>`}
+      <button type="button" class="pp-timer-btn" data-pp-home-action="timer-reset">reset</button>
+    </div>
+  `;
+}
+function ppTimerInitWheels(){
+  const wMin = document.querySelector('[data-pp-wheel="min"]');
+  const wSec = document.querySelector('[data-pp-wheel="sec"]');
+  if(wMin){
+    // Scroll to the saved minute
+    const items = wMin.querySelectorAll(".pp-wheel-item");
+    const idx = ppTimerWheelMin;
+    if(items[idx]) wMin.scrollTop = idx * 44;
+  }
+  if(wSec){
+    const items = wSec.querySelectorAll(".pp-wheel-item");
+    const secIdx = [0,15,30,45].indexOf(ppTimerWheelSec);
+    if(items[secIdx>=0?secIdx:0]) wSec.scrollTop = (secIdx>=0?secIdx:0) * 44;
+  }
+}
+function ppTimerWheelChanged(wheel){
+  // Snap-style read: the item closest to the center is "selected"
+  const center = wheel.scrollTop + 22; // wheel height is 132, so middle row is around scrollTop + 44 + half
+  // Our spacer is 44 tall; the visible-center item is at scrollTop / 44
+  const idx = Math.round(wheel.scrollTop / 44);
+  const items = wheel.querySelectorAll(".pp-wheel-item");
+  const it = items[idx];
+  if(!it) return;
+  const val = parseInt(it.getAttribute("data-val"), 10);
+  if(wheel.getAttribute("data-pp-wheel") === "min"){ ppTimerWheelMin = val; }
+  else { ppTimerWheelSec = val; }
+}
+function ppTimerStart(){
+  if(ppTimerRunning) return;
+  // If we have a remaining time from a paused state, keep it; else read from wheels
+  if(ppTimerSecs <= 0){
+    ppTimerSetSecs = ppTimerWheelMin * 60 + ppTimerWheelSec;
+    ppTimerSecs = ppTimerSetSecs;
+    if(ppTimerSecs <= 0) return; // nothing to do
+  }
+  ppTimerRunning = true;
+  // Re-render so the wheels swap to a digit display
+  if(curTeamTab==="pp_home") renderTeamTab();
+  ppTimerInterval = setInterval(()=>{
+    ppTimerSecs = Math.max(0, ppTimerSecs-1);
+    const disp = document.getElementById("pp-timer-disp");
+    if(disp){
+      const m = Math.floor(ppTimerSecs/60), s = ppTimerSecs%60;
+      disp.textContent = String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
+    }
+    if(ppTimerSecs === 0){
+      ppTimerRunning = false;
+      clearInterval(ppTimerInterval); ppTimerInterval = null;
+      ppSound("timer");
+      // Bounce the digits
+      if(disp){ disp.classList.remove("zero-bounce"); void disp.offsetWidth; disp.classList.add("zero-bounce"); }
+      launchConfetti();
+      // Auto-return to wheels after a moment
+      setTimeout(()=>{
+        ppTimerSecs = 0;
+        if(curTeamTab==="pp_home") renderTeamTab();
+      }, 3500);
+    }
+  }, 1000);
+}
+function ppTimerPause(){
+  if(!ppTimerRunning) return;
+  ppTimerRunning = false;
+  if(ppTimerInterval){ clearInterval(ppTimerInterval); ppTimerInterval = null; }
+  if(curTeamTab==="pp_home") renderTeamTab();
+}
+function ppTimerReset(){
+  ppTimerRunning = false;
+  ppTimerSecs = 0;
+  ppTimerSetSecs = 0;
+  if(ppTimerInterval){ clearInterval(ppTimerInterval); ppTimerInterval = null; }
+  if(curTeamTab==="pp_home") renderTeamTab();
+}
 
 function renderPPGroups(container){
   const team=getTeam("pink_panthers");
   const stunt=(team.ppStunts||[]).find(s=>s.id===ppCurStunt);
-  if(!stunt){renderPPStunts(container);return;}
+  if(!stunt){renderPPHome(container);return;}
   if(!stunt.groups||!stunt.groups.length){container.innerHTML=`<div style="padding:40px;text-align:center;color:var(--stone);font-style:italic">No groups set up yet for ${esc(stunt.label)}</div>`;return;}
   let html=`<div style="flex:1;overflow-y:auto;padding:24px;background:linear-gradient(135deg,#fff0f8,#f8f0ff)" id="pp-groups-wrap">
     <button type="button" data-pp-action="back-to-stunts" style="background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--stone);margin-bottom:16px;padding:0">&#8592; back</button>
@@ -1415,7 +2325,7 @@ function renderPPGroups(container){
       const btn=e.target.closest("[data-pp-action]");
       if(!btn)return;
       const action=btn.getAttribute("data-pp-action");
-      if(action==="back-to-stunts"){curTeamTab="pp_stunts";renderTeamTab();}
+      if(action==="back-to-stunts"){curTeamTab="pp_home";renderTeamTab();}
       else if(action==="select-group")selectPPGroup(btn.getAttribute("data-pp-group-id"));
     });
   }
@@ -1446,11 +2356,11 @@ function renderPPSession(container){
   const noteData=ppNotesCache()[noteKey]||{items:[]};
   const pendingNotes=noteData.items.filter(n=>!n.done);
 
-  let html=`<div style="flex:1;overflow-y:auto;padding:20px 16px 60px;background:linear-gradient(135deg,#fff0f8,#f8f0ff)">
+  let html=`<div style="flex:1;overflow-y:auto;padding:20px 16px 60px;background:linear-gradient(135deg,#fff0f8,#f8f0ff)" class="pp-bigscreen-scope">
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
-      <button onclick="curTeamTab='pp_groups';renderTeamTab()" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--stone)">&#8592;</button>
-      <div><div style="font-family:'DM Serif Display',serif;font-size:22px;font-style:italic">${esc(stunt.label)} · ${esc(group.name)}'s group</div>
-      <div style="font-size:11px;color:var(--stone)">${esc(stunt.desc)}</div></div>
+      <button onclick="curTeamTab='pp_stunt_training';renderTeamTab()" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--stone)">&#8592;</button>
+      <div><div style="font-family:'Bagel Fat One','DM Serif Display',sans-serif;font-size:24px;line-height:1;color:var(--ink)">${esc(stunt.label)} · ${esc(group.name)}'s group</div>
+      <div style="font-size:11px;color:var(--stone);margin-top:4px">${esc(stunt.desc)}</div></div>
     </div>
 
     <!-- HIT RATE -->
@@ -1655,11 +2565,11 @@ function renderPPTeamStats(container){
   const filter=ppStatsFilter;
   const filterLabels={today:"Today",week:"This Week",total:"All Time",fullout:"Fullouts"};
 
-  let html=`<div style="flex:1;overflow-y:auto;padding:20px 18px 60px;background:linear-gradient(135deg,#fff0f8,#f8f0ff);box-sizing:border-box" id="pp-stats-wrap">
+  let html=`<div style="flex:1;overflow-y:auto;padding:20px 18px 60px;background:linear-gradient(135deg,#fff0f8,#f8f0ff);box-sizing:border-box" class="pp-bigscreen-scope" id="pp-stats-wrap">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
       <button type="button" data-pp-action="back-to-stunts" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--stone);padding:0">&#8592;</button>
       <div>
-        <div style="font-family:'DM Serif Display',serif;font-size:22px;font-style:italic;line-height:1.1">Team Stats</div>
+        <div style="font-family:'Bagel Fat One','DM Serif Display',sans-serif;font-size:26px;line-height:1;color:var(--ink)">Team Stats</div>
         <div style="font-size:10px;color:var(--stone);letter-spacing:1.5px;text-transform:uppercase;margin-top:2px">${esc(filterLabels[filter])}</div>
       </div>
     </div>
@@ -1733,7 +2643,7 @@ function renderPPTeamStats(container){
       const btn=e.target.closest("[data-pp-action]");
       if(!btn)return;
       const action=btn.getAttribute("data-pp-action");
-      if(action==="back-to-stunts"){curTeamTab="pp_stunts";renderTeamTab();}
+      if(action==="back-to-stunts"){curTeamTab="pp_home";renderTeamTab();}
       else if(action==="set-filter"){ppStatsFilter=btn.getAttribute("data-pp-filter");renderTeamTab();}
     });
   }
@@ -1843,11 +2753,11 @@ function renderPPFullout(container){
   const flyers=ppAllFlyers();
   const totalDed=ppFoTotalDeduction(fo);
 
-  let html=`<div style="flex:1;overflow-y:auto;padding:18px 16px 60px;background:linear-gradient(135deg,#fff0f8,#f8f0ff);box-sizing:border-box" id="pp-fullout-wrap">
+  let html=`<div style="flex:1;overflow-y:auto;padding:18px 16px 60px;background:linear-gradient(135deg,#fff0f8,#f8f0ff);box-sizing:border-box" class="pp-bigscreen-scope" id="pp-fullout-wrap">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
       <button type="button" data-pp-fo-action="back" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--stone);padding:0">&#8592;</button>
       <div style="flex:1">
-        <div style="font-family:'DM Serif Display',serif;font-size:24px;font-style:italic;line-height:1.05">Fullout</div>
+        <div style="font-family:'Bagel Fat One','DM Serif Display',sans-serif;font-size:28px;line-height:1;color:var(--ink)">Fullout</div>
         <div style="font-size:10px;color:var(--stone);letter-spacing:1.5px;text-transform:uppercase;margin-top:2px">${esc(fmtShort(ppFoCurDate))}</div>
       </div>
       <button type="button" data-pp-fo-action="new-fullout" style="padding:8px 14px;background:white;border:1.5px solid var(--border);border-radius:100px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;color:var(--stone);cursor:pointer;-webkit-tap-highlight-color:rgba(196,85,154,.15);touch-action:manipulation">↻ new fullout</button>
@@ -1941,7 +2851,7 @@ function renderPPFullout(container){
       const action=btn.getAttribute("data-pp-fo-action");
       const flyer=btn.getAttribute("data-pp-fo-flyer");
       const stunt=btn.getAttribute("data-pp-fo-stunt");
-      if(action==="back"){curTeamTab="pp_stunts";renderTeamTab();}
+      if(action==="back"){curTeamTab="pp_home";renderTeamTab();}
       else if(action==="new-fullout")ppFoNewFullout();
       else if(action==="hit")ppFoOnHit(flyer,stunt);
       else if(action==="miss")ppFoOnMiss(flyer,stunt);
