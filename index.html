@@ -624,9 +624,6 @@ function openTeam(teamId){
   if(teamId==="pink_kitties"){curTeamTab="coord";document.querySelectorAll(".team-nav-btn").forEach(b=>b.classList.remove("active"));const coordBtn=document.querySelector("#coord-nav-btn-wrap .team-nav-btn");if(coordBtn)coordBtn.classList.add("active");}
   // Go straight to stunt tracker for pink panthers
   if(teamId==="pink_panthers"){curTeamTab="pp_stunts";document.querySelectorAll(".team-nav-btn").forEach(b=>b.classList.remove("active"));}
-  // Pink Panthers goes to stunt tracker
-  const t2=getTeam(teamId);
-  if(t2.customMode==="stunt_tracker"){showScreen("pp-stunt-home");renderPPHome();return;}
   showScreen("team-view");renderTeamTab();
 }
 function goBackToTeam(){stopSectionTimer();showScreen("team-view");renderTeamTab();}
