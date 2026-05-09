@@ -296,14 +296,14 @@ body{font-family:'DM Sans',sans-serif;color:var(--ink);}
 /* Team logo image (replaces the text wordmark when a team has a logo file). */
 .pp-team-logo{
   display: block;
-  height: 96px;
+  height: 140px;
   max-width: 80%;
   width: auto;
   object-fit: contain;
   margin: 0 auto 4px;
   filter: drop-shadow(0 4px 12px rgba(196, 85, 154, 0.18));
 }
-.pp-bigscreen-scope .pp-team-logo{ height: 144px; }
+.pp-bigscreen-scope .pp-team-logo{ height: 220px; }
 .pp-tagline{
   font-family: 'Caveat', cursive;
   text-align: center;
@@ -389,7 +389,7 @@ body{font-family:'DM Sans',sans-serif;color:var(--ink);}
 
 /* ── Star Chart ── */
 .pp-star-row{
-  display: grid; grid-template-columns: 36px 1fr auto auto; align-items: center;
+  display: grid; grid-template-columns: 36px 1fr auto; align-items: center;
   gap: 12px; padding: 10px 14px; background: white;
   border: 1px solid #f0d4e4; border-radius: 12px;
   margin-bottom: 6px;
@@ -406,14 +406,28 @@ body{font-family:'DM Sans',sans-serif;color:var(--ink);}
   font-size: 18px;
   display: flex; align-items: center; justify-content: center;
 }
+/* Name + stars sit together as one flex group on the left side. */
+.pp-star-info{
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  min-width: 0; /* allow shrinking */
+}
 .pp-star-name{
   font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 600; color: var(--ink);
 }
-.pp-star-count{
-  display: flex; align-items: center; gap: 6px;
+.pp-star-stars{
+  display: inline-flex; align-items: center; gap: 6px;
   font-family: 'DM Serif Display', serif; font-style: italic; font-size: 18px; color: #c47a1a;
 }
-.pp-star-count .stars-vis{ display: inline-flex; gap: 1px; font-size: 14px; }
+.pp-star-stars .stars-vis{ display: inline-flex; gap: 1px; font-size: 14px; }
+.pp-star-stars strong{
+  font-family: 'DM Sans', sans-serif; font-style: normal;
+  font-size: 14px; font-weight: 700; color: var(--stone);
+  margin-left: 2px;
+}
+.pp-star-empty{
+  font-family: 'DM Sans', sans-serif; font-size: 13px;
+  color: var(--stone); font-style: italic;
+}
 .pp-star-add{
   background: linear-gradient(135deg, #ffd86b, #f4a82c);
   color: white; border: none; border-radius: 100px;
@@ -458,16 +472,18 @@ body{font-family:'DM Sans',sans-serif;color:var(--ink);}
   border-radius: 18px; padding: 24px 16px;
   display: flex; flex-direction: column; align-items: center; gap: 14px;
   color: white;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
   font-family: 'DM Sans', sans-serif;
   text-align: center;
   overflow: hidden;
   box-shadow: 0 6px 24px rgba(0,0,0,0.12);
   transition: transform 0.2s;
 }
-.pp-house.red    { background: linear-gradient(135deg, #ff5454, #c8262e); --house-color: #d62828; }
-.pp-house.green  { background: linear-gradient(135deg, #4cd97d, #2e8a4f); --house-color: #2e8a4f; }
-.pp-house.blue   { background: linear-gradient(135deg, #4a90e2, #1e5fab); --house-color: #1e5fab; }
-.pp-house.yellow { background: linear-gradient(135deg, #ffd23a, #d49b1a); --house-color: #d49b1a; color: #2a1f00; }
+/* All four houses use white text. Gradients go bright→deep so the lower portion has enough contrast. */
+.pp-house.red    { background: linear-gradient(135deg, #f87171 0%, #b91c1c 100%); --house-color: #b91c1c; }
+.pp-house.green  { background: linear-gradient(135deg, #4ade80 0%, #15803d 100%); --house-color: #15803d; }
+.pp-house.blue   { background: linear-gradient(135deg, #60a5fa 0%, #1d4ed8 100%); --house-color: #1d4ed8; }
+.pp-house.yellow { background: linear-gradient(135deg, #fbbf24 0%, #b45309 100%); --house-color: #b45309; }
 .pp-house-name{
   font-family: 'Bagel Fat One', 'DM Serif Display', sans-serif;
   font-size: 24px; letter-spacing: 1px; text-transform: uppercase;
@@ -497,6 +513,72 @@ body{font-family:'DM Sans',sans-serif;color:var(--ink);}
   80%     { transform: rotate(2deg) scale(1.02); }
 }
 .pp-house.wobble{ animation: ppHouseWobble 0.8s ease-in-out; }
+
+/* ── Stunt Training expanded group cards ── */
+/* All groups for a stunt show on one screen; each card has HIT/MISS buttons inline. */
+.pp-stunt-cards-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+  padding: 0 18px 24px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.pp-stunt-card{
+  background: white;
+  border: 2px solid #ffc8e0;
+  border-radius: 18px;
+  padding: 18px 14px;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  text-align: center;
+  box-shadow: 0 4px 14px rgba(196, 85, 154, 0.1);
+}
+.pp-stunt-card-name{
+  font-family: 'Bagel Fat One', 'DM Serif Display', sans-serif;
+  font-size: 19px; color: #1a1a1a; letter-spacing: 0.3px;
+}
+.pp-stunt-card-pct{
+  font-family: 'DM Serif Display', serif; font-style: italic;
+  font-size: 48px; line-height: 1; margin: 4px 0;
+}
+.pp-stunt-card-count{
+  font-family: 'DM Sans', sans-serif; font-size: 13px;
+  color: var(--stone); letter-spacing: 0.5px;
+}
+.pp-stunt-card-actions{
+  display: flex; gap: 6px; width: 100%; margin-top: 8px;
+}
+.pp-stunt-card-miss, .pp-stunt-card-hit{
+  flex: 1; border: none; border-radius: 100px; padding: 11px;
+  font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 700;
+  letter-spacing: 0.5px; cursor: pointer;
+  -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+  transition: transform 0.12s;
+}
+.pp-stunt-card-miss:active, .pp-stunt-card-hit:active{ transform: scale(0.94); }
+.pp-stunt-card-miss{ background: #f0eeec; color: #c4554a; }
+.pp-stunt-card-hit{
+  background: linear-gradient(135deg, #e91e8c, #c4559a);
+  color: white;
+  box-shadow: 0 3px 10px rgba(196, 85, 154, 0.35);
+}
+.pp-stunt-save{
+  width: 100%; padding: 24px;
+  background: linear-gradient(135deg, #e91e8c, #9b59b6);
+  color: white; border: none; border-radius: 18px;
+  font-family: 'DM Sans', sans-serif; font-size: 18px; font-weight: 800;
+  letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
+  box-shadow: 0 6px 20px rgba(196, 85, 154, 0.35);
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0.2);
+  touch-action: manipulation;
+}
+.pp-stunt-save:active{ transform: scale(0.98); }
+/* Big-screen scaling */
+.pp-bigscreen-scope .pp-stunt-card-name{ font-size: 26px !important; }
+.pp-bigscreen-scope .pp-stunt-card-pct{ font-size: 64px !important; }
+.pp-bigscreen-scope .pp-stunt-card-miss,
+.pp-bigscreen-scope .pp-stunt-card-hit{ font-size: 16px !important; padding: 14px !important; }
+.pp-bigscreen-scope .pp-stunt-save{ font-size: 22px !important; padding: 30px !important; }
 
 /* Number-roll animation for the slot-machine effect */
 @keyframes ppNumRoll{
@@ -2035,22 +2117,33 @@ function renderPPStuntTraining(container){
   });
   html += `</div>`;
 
-  // Groups grid for the active stunt
+  // Expanded group cards — all groups visible at once with HIT/MISS buttons.
   if(activeStunt && activeStunt.groups && activeStunt.groups.length){
-    html += `<div style="padding:0 18px 60px"><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px;max-width:760px;margin:0 auto">`;
+    html += `<div class="pp-stunt-cards-grid">`;
     activeStunt.groups.forEach(g=>{
-      const sessions = (ppCache[activeStunt.id+"_"+g.id]||[]);
-      const last = sessions[0];
-      const pct = last && last.attempts>0 ? Math.round((last.hits/last.attempts)*100) : null;
-      const trend = calcTrend(sessions);
-      html += `<button type="button" class="pp-tile" data-pp-st-action="select-group" data-pp-st-group="${esc(g.id)}" style="--tile-accent:#e91e8c;min-height:170px;padding:18px 14px">
-        <div style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#e91e8c,#9b59b6);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:26px;font-style:italic;color:white;pointer-events:none">${esc(g.name[0])}</div>
-        <div style="font-size:14px;font-weight:700;color:var(--ink);pointer-events:none">${esc(g.name)}'s group</div>
-        ${pct!==null?`<div style="font-size:12px;font-weight:700;color:${pctCol(pct)};pointer-events:none">${pct}% last</div>`:""}
-        ${trend?`<div style="font-size:11px;pointer-events:none" class="${trend.cls}">${trend.arrow}</div>`:""}
-      </button>`;
+      // Read live state from the per-group draft (so navigation/screen changes don't lose data)
+      const dkey = activeStunt.id + "_" + g.id;
+      const draft = ppSessionDrafts[dkey] || {attempts:0, hits:0};
+      const atts = draft.attempts || 0;
+      const hits = draft.hits || 0;
+      const pct = atts > 0 ? Math.round((hits/atts)*100) : null;
+      const pctColor = pct === null ? "var(--stone)" : pctCol(pct);
+      html += `<div class="pp-stunt-card">
+        <div class="pp-stunt-card-name">${esc(g.name)}'s group</div>
+        <div class="pp-stunt-card-pct" style="color:${pctColor}">${pct === null ? "—" : pct + "%"}</div>
+        <div class="pp-stunt-card-count">${hits} / ${atts}</div>
+        <div class="pp-stunt-card-actions">
+          <button class="pp-stunt-card-miss" data-pp-st-action="miss" data-pp-st-stunt="${esc(activeStunt.id)}" data-pp-st-group="${esc(g.id)}">MISS ✗</button>
+          <button class="pp-stunt-card-hit" data-pp-st-action="hit" data-pp-st-stunt="${esc(activeStunt.id)}" data-pp-st-group="${esc(g.id)}">HIT! 🎉</button>
+        </div>
+      </div>`;
     });
-    html += `</div></div>`;
+    html += `</div>`;
+    // Save button at the bottom — commits all non-empty drafts as session docs
+    const totalDrafts = Object.values(ppSessionDrafts).filter(d => d && (d.attempts > 0 || d.hits > 0)).length;
+    html += `<div style="padding:8px 18px 60px;max-width:760px;margin:0 auto">
+      <button type="button" class="pp-stunt-save" data-pp-st-action="save-all">${totalDrafts > 0 ? `save session ✓ (${totalDrafts} ${totalDrafts===1?"group":"groups"})` : "save session ✓"}</button>
+    </div>`;
   } else {
     html += `<div style="padding:40px;text-align:center;color:var(--stone);font-style:italic">No groups set up yet for ${esc(activeStunt?activeStunt.label:"this stunt")}.</div>`;
   }
@@ -2062,16 +2155,83 @@ function renderPPStuntTraining(container){
   if(wrap && !wrap._ppDelegated){
     wrap._ppDelegated = true;
     wrap.addEventListener("click", e=>{
-      const tile = e.target.closest(".pp-tile");
-      if(tile){ tile.classList.remove("bouncing"); void tile.offsetWidth; tile.classList.add("bouncing"); }
       const btn = e.target.closest("[data-pp-st-action]");
       if(!btn) return;
       const action = btn.getAttribute("data-pp-st-action");
       if(action==="back"){ ppSound("tap"); curTeamTab="pp_home"; renderTeamTab(); }
       else if(action==="set-tab"){ ppSound("tap"); ppStuntTrainingTab = btn.getAttribute("data-pp-st-tab"); renderTeamTab(); }
-      else if(action==="select-group"){ ppSound("tap"); ppCurStunt = ppStuntTrainingTab; selectPPGroup(btn.getAttribute("data-pp-st-group")); }
+      else if(action==="hit"){
+        ppGroupHit(btn.getAttribute("data-pp-st-stunt"), btn.getAttribute("data-pp-st-group"));
+      }
+      else if(action==="miss"){
+        ppGroupMiss(btn.getAttribute("data-pp-st-stunt"), btn.getAttribute("data-pp-st-group"));
+      }
+      else if(action==="save-all"){ ppSaveAllDrafts(); }
     });
   }
+}
+
+// ── Multi-group HIT/MISS helpers (used by the new stunt training cards) ──
+// Each tap goes straight into the per-group draft (persisted to localStorage so it survives navigation).
+function ppSaveDraftsToStorage(){
+  try { localStorage.setItem("pp_session_drafts", JSON.stringify(ppSessionDrafts)); } catch(e){}
+}
+function ppGroupHit(stuntId, groupId){
+  ensureAudio();
+  const key = stuntId + "_" + groupId;
+  const draft = ppSessionDrafts[key] || {stuntId, groupId, attempts:0, hits:0, celebrated:false};
+  // HIT increments BOTH attempts and hits → 3 hits + 2 misses naturally = 3/5 = 60%
+  draft.hits = (draft.hits||0) + 1;
+  draft.attempts = (draft.attempts||0) + 1;
+  draft.date = new Date().toISOString().split("T")[0];
+  draft.stuntId = stuntId; draft.groupId = groupId;
+  // Confetti when crossing INTO 100% (re-arms after a miss drops below)
+  const at100 = draft.attempts > 0 && draft.hits === draft.attempts;
+  if(at100 && !draft.celebrated){ draft.celebrated = true; launchConfetti(); }
+  ppSessionDrafts[key] = draft;
+  ppSaveDraftsToStorage();
+  ppSound("hit");
+  renderTeamTab();
+}
+function ppGroupMiss(stuntId, groupId){
+  ensureAudio();
+  const key = stuntId + "_" + groupId;
+  const draft = ppSessionDrafts[key] || {stuntId, groupId, attempts:0, hits:0, celebrated:false};
+  // MISS increments attempts only — hits unchanged
+  draft.attempts = (draft.attempts||0) + 1;
+  draft.date = new Date().toISOString().split("T")[0];
+  draft.stuntId = stuntId; draft.groupId = groupId;
+  draft.celebrated = false; // re-arm confetti on the next 100%
+  ppSessionDrafts[key] = draft;
+  ppSaveDraftsToStorage();
+  ppSound("tap");
+  renderTeamTab();
+}
+async function ppSaveAllDrafts(){
+  // Commit each non-empty draft as a fresh session doc to Firestore, then clear drafts.
+  const keys = Object.keys(ppSessionDrafts).filter(k => {
+    const d = ppSessionDrafts[k];
+    return d && (d.attempts > 0 || d.hits > 0);
+  });
+  if(!keys.length){ alert("Nothing to save yet — tap HIT or MISS on any group first."); return; }
+  const today = new Date().toISOString().split("T")[0];
+  await Promise.all(keys.map(key => {
+    const d = ppSessionDrafts[key];
+    const session = {
+      id: uid(),
+      stuntId: d.stuntId,
+      groupId: d.groupId,
+      date: d.date || today,
+      attempts: d.attempts||0,
+      hits: d.hits||0,
+      updated_at: new Date().toISOString()
+    };
+    return ppCol().doc(session.id).set(session);
+  }));
+  ppSessionDrafts = {};
+  ppSaveDraftsToStorage();
+  ppSound("save");
+  renderTeamTab();
 }
 
 // ── PP STAR CHART ──
@@ -2155,9 +2315,11 @@ function renderPPStarChart(container){
     const overflow = count > 10 ? `<span style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;color:#c47a1a;margin-left:4px">+${count-10}</span>` : "";
     html += `<div class="pp-star-row" data-pp-star-row="${esc(id)}">
       <div class="pp-star-avatar">${esc(name[0])}</div>
-      <div class="pp-star-name">${esc(name)}</div>
-      <div class="pp-star-count">
-        ${count>0 ? `<span class="stars-vis">${visStars}</span>${overflow} <span style="font-size:14px;color:var(--stone);font-style:normal;font-family:'DM Sans',sans-serif;font-weight:700;margin-left:4px">${count}</span>` : `<span style="font-size:13px;color:var(--stone);font-style:normal;font-family:'DM Sans',sans-serif">no stars yet</span>`}
+      <div class="pp-star-info">
+        <span class="pp-star-name">${esc(name)}</span>
+        ${count>0
+          ? `<span class="pp-star-stars"><span class="stars-vis">${visStars}</span>${overflow}<strong>${count}</strong></span>`
+          : `<span class="pp-star-empty">no stars yet</span>`}
       </div>
       <button type="button" class="pp-star-add" data-pp-star-action="add" data-pp-star-name="${esc(name)}">+ ⭐</button>
     </div>`;
