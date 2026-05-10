@@ -267,6 +267,12 @@ body{font-family:'DM Sans',sans-serif;color:var(--ink);}
   background-size: 400% 400%;
   animation: ppHueDrift 18s ease-in-out infinite;
 }
+/* Lady Lynx uses a pretty pastel blue gradient */
+.pp-gradient-blue{
+  background: linear-gradient(120deg, #e6f4ff 0%, #d0e8ff 25%, #bcdcff 50%, #d4ecff 75%, #e6f4ff 100%);
+  background-size: 400% 400%;
+  animation: ppHueDrift 18s ease-in-out infinite;
+}
 
 /* Drifting sparkle particles in the background */
 @keyframes ppSparkleDrift{
@@ -305,6 +311,10 @@ body{font-family:'DM Sans',sans-serif;color:var(--ink);}
 }
 .pp-sparkle-paws .pp-sparkle-icon svg{
   display: block;
+}
+/* Butterfly sparkle variant — Lady Lynx. The 🦋 emoji renders bigger and gets a soft blue shadow underneath. */
+.pp-sparkle-butterflies .pp-sparkle{
+  filter: drop-shadow(0 2px 4px rgba(80, 130, 200, 0.3));
 }
 
 /* The big italic wordmark */
@@ -960,7 +970,41 @@ const TEAMS=[
    stunts:[{id:"stunt1",label:"Main Stunt",athletes:["Nova","Stella","Aurora","Ivy","Pearl","Jade","Sage"]},{id:"stunt2",label:"2nd Stunt",athletes:["Nova","Stella","Aurora","Ivy","Pearl","Jade","Sage"]}],
    templates:{tuesday:{id:"tuesday",display:"Tuesday",time:"5:00 pm - 6:45 pm",duration:105},thursday:{id:"thursday",display:"Thursday",time:"6:00 pm - 7:30 pm",duration:90}}},
   {id:"lady_lynx",name:"Lady Lynx",abbr:"LLX",logo:"logo-lady-lynx.png",
-   stunts:[{id:"stunt1",label:"Main Stunt",athletes:["Skye","River","Quinn","Blair","Reese","Sloane","Teagan"]},{id:"stunt2",label:"2nd Stunt",athletes:["Skye","River","Quinn","Blair","Reese","Sloane","Teagan"]}],
+   noClassPlan:true,
+   useStuntSetup:true,
+   hasHouses:true,
+   sparkleStyle:"butterflies",
+   taglineEmoji:"🦋",
+   roster:["Charlie","Chloe","Eyden","Georgia","Harper","Ivy","Layla","Lillee","Lorelai","Lucy","Lulu","Madi","Maeli","Millah","Quinn","River","Rogue","Ruby","Scarlett","Sienna","Sofia","Sydney","Vypah","Zara U","Zara I"],
+   ppStunts:[
+     {id:"ll_main",label:"Main Stunt",desc:"",groups:[
+       {id:"ll_main_zara",name:"Zara"},
+       {id:"ll_main_ivy",name:"Ivy"},
+       {id:"ll_main_ruby",name:"Ruby"},
+       {id:"ll_main_georgia",name:"Georgia"},
+       {id:"ll_main_scarlett",name:"Scarlett"},
+       {id:"ll_main_lulu",name:"Lulu"}
+     ]},
+     {id:"ll_2mans",label:"2 Mans",desc:"",groups:[
+       {id:"ll_2mans_zara",name:"Zara"},
+       {id:"ll_2mans_ivy",name:"Ivy"},
+       {id:"ll_2mans_ruby",name:"Ruby"},
+       {id:"ll_2mans_georgia",name:"Georgia"},
+       {id:"ll_2mans_scarlett",name:"Scarlett"},
+       {id:"ll_2mans_lulu",name:"Lulu"},
+       {id:"ll_2mans_river",name:"River"},
+       {id:"ll_2mans_harper",name:"Harper"}
+     ]},
+     {id:"ll_pyramid",label:"Pyramid",desc:"",groups:[
+       {id:"ll_pyramid_zara",name:"Zara"},
+       {id:"ll_pyramid_ivy",name:"Ivy"},
+       {id:"ll_pyramid_ruby",name:"Ruby"},
+       {id:"ll_pyramid_georgia",name:"Georgia"},
+       {id:"ll_pyramid_scarlett",name:"Scarlett"},
+       {id:"ll_pyramid_lulu",name:"Lulu"}
+     ]}
+   ],
+   stunts:[{id:"stunt1",label:"Main Stunt",athletes:["Zara","Ivy","Ruby","Georgia","Scarlett","Lulu"]},{id:"stunt2",label:"2 Mans",athletes:["Zara","Ivy","Ruby","Georgia","Scarlett","Lulu","River","Harper"]}],
    templates:{tuesday:{id:"tuesday",display:"Tuesday",time:"5:00 pm - 6:45 pm",duration:105},thursday:{id:"thursday",display:"Thursday",time:"6:00 pm - 7:30 pm",duration:90}}},
   {id:"savage_katz",name:"Savage Katz",abbr:"SK",logo:"logo-savage-katz.png",tossesLabel:"Opening",
    stunts:[
@@ -2111,23 +2155,26 @@ function renderPPHome(container){
 
   // Build sparkle decorations (random positions/timings)
   // Each team can declare a sparkleStyle for theme-appropriate glyphs:
-  //   "silver"   → diamonds (Tiny Diamonds)
-  //   "assassin" → sniper scope reticles + X marks (Pink Assassins)
-  //   "paws"     → hot pink paw prints (Pink Panthers)
-  //   "kitties"  → paws + cat face silhouettes (Pink Kitties)
-  //   "claws"    → paws + scratch marks (Claw Katz)
-  //   default    → pink stars (fallback)
-  const isAssassin = team.sparkleStyle === "assassin";
-  const isPaws     = team.sparkleStyle === "paws";
-  const isKitties  = team.sparkleStyle === "kitties";
-  const isClaws    = team.sparkleStyle === "claws";
-  const useSvg     = isAssassin || isPaws || isKitties || isClaws;
+  //   "silver"      → diamonds (Tiny Diamonds)
+  //   "assassin"    → sniper scope reticles + X marks (Pink Assassins)
+  //   "paws"        → hot pink paw prints (Pink Panthers)
+  //   "kitties"     → paws + cat face silhouettes (Pink Kitties)
+  //   "claws"       → paws + jagged scratch marks (Claw Katz)
+  //   "butterflies" → big floating 🦋 emoji (Lady Lynx)
+  //   default       → pink stars (fallback)
+  const isAssassin    = team.sparkleStyle === "assassin";
+  const isPaws        = team.sparkleStyle === "paws";
+  const isKitties     = team.sparkleStyle === "kitties";
+  const isClaws       = team.sparkleStyle === "claws";
+  const isButterflies = team.sparkleStyle === "butterflies";
+  const useSvg        = isAssassin || isPaws || isKitties || isClaws;
   const sparkleSyms =
     team.sparkleStyle === "silver" ? ["✦","✧","◆","♦","✩","✺"] :
     isAssassin                     ? ["scope","x"] :
     isPaws                         ? ["paw"] :
     isKitties                      ? ["paw","cat"] :
-    isClaws                        ? ["paw","scratch"] :   // Claw Katz: paws + scratch marks
+    isClaws                        ? ["paw","scratch"] :
+    isButterflies                  ? ["🦋"] :          // big emoji butterflies for Lady Lynx
                                      ["✦","✧","٭","✩","★"];
   // Doubled counts so the page feels nice and busy with floaties
   const sparkleCount = useSvg ? 20 : 28;
@@ -2221,21 +2268,25 @@ function renderPPHome(container){
       }
       sparkles += `<span class="pp-sparkle pp-sparkle-icon" style="left:${left}%;top:${top}%;--dx:${dx}px;--dy:${dy}px;--dur:${dur}s;--delay:${delay}s">${svg}</span>`;
     }else{
-      const sizeMin = 10;
-      const sizeRange = 10;
+      // Unicode glyphs: butterflies render bigger (28-50px) than star/diamond glyphs (10-20px)
+      const sizeMin   = isButterflies ? 28 : 10;
+      const sizeRange = isButterflies ? 22 : 10;
       sparkles += `<span class="pp-sparkle" style="left:${left}%;top:${top}%;--dx:${dx}px;--dy:${dy}px;--dur:${dur}s;--delay:${delay}s;font-size:${sizeMin+Math.random()*sizeRange}px">${sym}</span>`;
     }
   }
 
   // Map sparkleStyle → CSS class (each style gets its own color/glow treatment)
-  const sparkleClass = team.sparkleStyle === "silver"   ? "pp-sparkle-silver"
-                     : team.sparkleStyle === "assassin" ? "pp-sparkle-assassin"
-                     : team.sparkleStyle === "paws"     ? "pp-sparkle-paws"
-                     : team.sparkleStyle === "kitties"  ? "pp-sparkle-paws"  // reuse paws styling (hot pink glow) for kitties
-                     : team.sparkleStyle === "claws"    ? "pp-sparkle-paws"  // reuse paws styling (hot pink glow) for claws
+  const sparkleClass = team.sparkleStyle === "silver"      ? "pp-sparkle-silver"
+                     : team.sparkleStyle === "assassin"    ? "pp-sparkle-assassin"
+                     : team.sparkleStyle === "paws"        ? "pp-sparkle-paws"
+                     : team.sparkleStyle === "kitties"     ? "pp-sparkle-paws"  // reuse paws styling (hot pink glow) for kitties
+                     : team.sparkleStyle === "claws"       ? "pp-sparkle-paws"  // reuse paws styling (hot pink glow) for claws
+                     : team.sparkleStyle === "butterflies" ? "pp-sparkle-butterflies"
                      : "";
-  // Background gradient: lime green for Claw Katz, default pink for everyone else.
-  const bgClass = team.sparkleStyle === "claws" ? "pp-gradient-lime" : "pp-gradient-bg";
+  // Background gradient: lime for Claw Katz, blue for Lady Lynx, default pink for everyone else.
+  const bgClass = team.sparkleStyle === "claws"       ? "pp-gradient-lime"
+                : team.sparkleStyle === "butterflies" ? "pp-gradient-blue"
+                : "pp-gradient-bg";
 
   let html = `
   <div class="pp-bigscreen-scope ${bgClass} ${sparkleClass}" style="position:relative;flex:1;overflow-y:auto;padding:20px 18px 30px;box-sizing:border-box" id="pp-home-wrap">
