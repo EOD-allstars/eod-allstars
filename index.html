@@ -273,6 +273,12 @@ body{font-family:'DM Sans',sans-serif;color:var(--ink);}
   background-size: 400% 400%;
   animation: ppHueDrift 18s ease-in-out infinite;
 }
+/* Lady Diamonds: soft shifting metallic silver — lighter than the silver in the team logo */
+.pp-gradient-silver{
+  background: linear-gradient(120deg, #f5f6f9 0%, #e2e6ec 20%, #f8fafc 40%, #d8dde4 60%, #eef1f5 80%, #f5f6f9 100%);
+  background-size: 400% 400%;
+  animation: ppHueDrift 18s ease-in-out infinite;
+}
 
 /* Drifting sparkle particles in the background */
 @keyframes ppSparkleDrift{
@@ -340,8 +346,9 @@ body{font-family:'DM Sans',sans-serif;color:var(--ink);}
   filter: drop-shadow(0 4px 12px rgba(196, 85, 154, 0.18));
 }
 .pp-bigscreen-scope .pp-team-logo{ height: 220px; }
-/* Lady Lynx (butterflies sparkle style): pink halo around the logo so it pops against the cyan background */
-.pp-sparkle-butterflies .pp-team-logo{
+/* Lady Lynx (cyan bg) + Lady Diamonds (silver bg): pink halo around the logo so it pops */
+.pp-sparkle-butterflies .pp-team-logo,
+.pp-gradient-silver .pp-team-logo{
   filter: drop-shadow(0 0 18px rgba(255, 130, 200, 0.7))
           drop-shadow(0 0 36px rgba(255, 130, 200, 0.45))
           drop-shadow(0 4px 12px rgba(196, 85, 154, 0.25));
@@ -1054,8 +1061,32 @@ const TEAMS=[
    ],
    stunts:[{id:"stunt1",label:"Main Stunt",athletes:["Max","Vogue","Zayli","Mia","Makki G","Airlie","Mikayla"]},{id:"stunt2",label:"2nd Stunt",athletes:["Vogue","Mia","Makki G","Airlie","Mikayla"]}],
    templates:{tuesday:{id:"tuesday",display:"Tuesday",time:"5:00 pm - 6:45 pm",duration:105},thursday:{id:"thursday",display:"Thursday",time:"6:00 pm - 7:30 pm",duration:90}}},
-  {id:"diamonds",name:"Diamonds",abbr:"DIA",logo:"logo-diamonds.png",
-   stunts:[{id:"stunt1",label:"Main Stunt",athletes:["Amarni","Vogue","Maci","Emma","Freyah"]}],
+  {id:"diamonds",name:"Lady Diamonds",abbr:"LD",logo:"logo-diamonds.png",
+   noClassPlan:true,
+   useStuntSetup:true,
+   hasHouses:true,
+   sparkleStyle:"pink_diamonds",
+   taglineEmoji:"💎",
+   roster:["Vogue","Amarni","Emma","Ruby A","Maci","Freyah","Imogen","Isla","Ruby B","Hurley","Amarli","Isabelle","Lilah","Ella","Jemma","Elly","Taylor","Azarlah","Ivy","Ruby C","Paris","Addy","Farrah","Caitlin","Sienna"],
+   ppStunts:[
+     {id:"ld_s1",label:"Stunt 1",desc:"",groups:[
+       {id:"ld_s1_amarni",name:"Amarni"},
+       {id:"ld_s1_emma",name:"Emma"},
+       {id:"ld_s1_ruby",name:"Ruby"},
+       {id:"ld_s1_freyah",name:"Freyah"},
+       {id:"ld_s1_vogue",name:"Vogue"},
+       {id:"ld_s1_maci",name:"Maci"}
+     ]},
+     {id:"ld_pyramid",label:"Pyramid",desc:"",groups:[
+       {id:"ld_pyramid_amarni",name:"Amarni"},
+       {id:"ld_pyramid_emma",name:"Emma"},
+       {id:"ld_pyramid_ruby",name:"Ruby"},
+       {id:"ld_pyramid_freyah",name:"Freyah"},
+       {id:"ld_pyramid_vogue",name:"Vogue"},
+       {id:"ld_pyramid_maci",name:"Maci"}
+     ]}
+   ],
+   stunts:[{id:"stunt1",label:"Main Stunt",athletes:["Amarni","Emma","Ruby","Freyah","Vogue","Maci"]}],
    templates:{monday:{id:"monday",display:"Monday",time:"4:00 pm - 5:45 pm",duration:105},wednesday:{id:"wednesday",display:"Wednesday",time:"4:00 pm - 6:00 pm",duration:120}}},
   {id:"pink_panthers",name:"Pink Panthers",abbr:"PP",logo:"logo-pink-panthers.png",
    noClassPlan:true,
@@ -2161,26 +2192,29 @@ function renderPPHome(container){
 
   // Build sparkle decorations (random positions/timings)
   // Each team can declare a sparkleStyle for theme-appropriate glyphs:
-  //   "silver"      → diamonds (Tiny Diamonds)
-  //   "assassin"    → sniper scope reticles + X marks (Pink Assassins)
-  //   "paws"        → hot pink paw prints (Pink Panthers)
-  //   "kitties"     → paws + cat face silhouettes (Pink Kitties)
-  //   "claws"       → paws + jagged scratch marks (Claw Katz)
-  //   "butterflies" → big floating 🦋 emoji (Lady Lynx)
-  //   default       → pink stars (fallback)
-  const isAssassin    = team.sparkleStyle === "assassin";
-  const isPaws        = team.sparkleStyle === "paws";
-  const isKitties     = team.sparkleStyle === "kitties";
-  const isClaws       = team.sparkleStyle === "claws";
-  const isButterflies = team.sparkleStyle === "butterflies";
-  const useSvg        = isAssassin || isPaws || isKitties || isClaws;
+  //   "silver"        → diamonds glyphs (Tiny Diamonds — small unicode)
+  //   "assassin"      → sniper scope reticles + X marks (Pink Assassins)
+  //   "paws"          → hot pink paw prints (Pink Panthers)
+  //   "kitties"       → paws + cat face silhouettes (Pink Kitties)
+  //   "claws"         → paws + jagged scratch marks (Claw Katz)
+  //   "butterflies"   → big floating 🦋 emoji (Lady Lynx)
+  //   "pink_diamonds" → SVG pink jewel diamonds (Lady Diamonds)
+  //   default         → pink stars (fallback)
+  const isAssassin     = team.sparkleStyle === "assassin";
+  const isPaws         = team.sparkleStyle === "paws";
+  const isKitties      = team.sparkleStyle === "kitties";
+  const isClaws        = team.sparkleStyle === "claws";
+  const isButterflies  = team.sparkleStyle === "butterflies";
+  const isPinkDiamonds = team.sparkleStyle === "pink_diamonds";
+  const useSvg         = isAssassin || isPaws || isKitties || isClaws || isPinkDiamonds;
   const sparkleSyms =
     team.sparkleStyle === "silver" ? ["✦","✧","◆","♦","✩","✺"] :
     isAssassin                     ? ["scope","x"] :
     isPaws                         ? ["paw"] :
     isKitties                      ? ["paw","cat"] :
     isClaws                        ? ["paw","scratch"] :
-    isButterflies                  ? ["🦋"] :          // big emoji butterflies for Lady Lynx
+    isButterflies                  ? ["🦋"] :
+    isPinkDiamonds                 ? ["diamond"] :          // SVG pink jewel diamonds for Lady Diamonds
                                      ["✦","✧","٭","✩","★"];
   // Doubled counts so the page feels nice and busy with floaties
   const sparkleCount = useSvg ? 20 : 28;
@@ -2233,6 +2267,19 @@ function renderPPHome(container){
           <path d="M78 32 L70 8 L52 36 Z" fill="#ff6dbf"/>
           <ellipse cx="50" cy="60" rx="29" ry="27" fill="#ff6dbf"/>
         </svg>`;
+      } else if(sym === "diamond"){
+        // Pink jewel diamond — kite cut with facet lines, matches the diamonds in the Lady Diamonds logo.
+        // Three pink tones (light table, medium crown, deeper pavilion) give it 3D shimmer at small sizes.
+        const rot = Math.floor(Math.random()*30-15);
+        svg = `<svg viewBox="0 0 100 100" width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="transform:rotate(${rot}deg)">
+          <polygon points="50,8 90,40 50,92 10,40" fill="#ff6dbf"/>
+          <polygon points="50,8 90,40 10,40" fill="#ff8acb"/>
+          <polygon points="32,22 68,22 78,40 22,40" fill="#ffb8da"/>
+          <polygon points="50,8 90,40 50,92 10,40" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="1.5"/>
+          <line x1="10" y1="40" x2="90" y2="40" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
+          <line x1="32" y1="22" x2="50" y2="92" stroke="rgba(255,255,255,0.3)" stroke-width="0.7"/>
+          <line x1="68" y1="22" x2="50" y2="92" stroke="rgba(255,255,255,0.3)" stroke-width="0.7"/>
+        </svg>`;
       } else if(sym === "scratch"){
         // Three parallel JAGGED claw scratches in hot pink (Claw Katz).
         // Each scratch is procedurally generated: a tapered claw centerline with
@@ -2282,16 +2329,18 @@ function renderPPHome(container){
   }
 
   // Map sparkleStyle → CSS class (each style gets its own color/glow treatment)
-  const sparkleClass = team.sparkleStyle === "silver"      ? "pp-sparkle-silver"
-                     : team.sparkleStyle === "assassin"    ? "pp-sparkle-assassin"
-                     : team.sparkleStyle === "paws"        ? "pp-sparkle-paws"
-                     : team.sparkleStyle === "kitties"     ? "pp-sparkle-paws"  // reuse paws styling (hot pink glow) for kitties
-                     : team.sparkleStyle === "claws"       ? "pp-sparkle-paws"  // reuse paws styling (hot pink glow) for claws
-                     : team.sparkleStyle === "butterflies" ? "pp-sparkle-butterflies"
+  const sparkleClass = team.sparkleStyle === "silver"        ? "pp-sparkle-silver"
+                     : team.sparkleStyle === "assassin"      ? "pp-sparkle-assassin"
+                     : team.sparkleStyle === "paws"          ? "pp-sparkle-paws"
+                     : team.sparkleStyle === "kitties"       ? "pp-sparkle-paws"  // reuse paws styling (hot pink glow) for kitties
+                     : team.sparkleStyle === "claws"         ? "pp-sparkle-paws"  // reuse paws styling (hot pink glow) for claws
+                     : team.sparkleStyle === "butterflies"   ? "pp-sparkle-butterflies"
+                     : team.sparkleStyle === "pink_diamonds" ? "pp-sparkle-paws"  // reuse paws styling (hot pink glow) for pink diamonds
                      : "";
-  // Background gradient: lime for Claw Katz, blue for Lady Lynx, default pink for everyone else.
-  const bgClass = team.sparkleStyle === "claws"       ? "pp-gradient-lime"
-                : team.sparkleStyle === "butterflies" ? "pp-gradient-blue"
+  // Background gradient: lime for Claw Katz, blue for Lady Lynx, silver for Lady Diamonds, default pink for everyone else.
+  const bgClass = team.sparkleStyle === "claws"         ? "pp-gradient-lime"
+                : team.sparkleStyle === "butterflies"   ? "pp-gradient-blue"
+                : team.sparkleStyle === "pink_diamonds" ? "pp-gradient-silver"
                 : "pp-gradient-bg";
 
   let html = `
