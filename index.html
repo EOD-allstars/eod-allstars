@@ -274,7 +274,7 @@ body{font-family:'DM Sans',sans-serif;color:var(--ink);}
   animation: ppHueDrift 18s ease-in-out infinite;
 }
 /* Lady Diamonds: dramatic shifting metallic — many bright/dark stops create shimmery bands
-   that sweep across the page on a faster shimmer cycle. */
+   that drift slowly across the page (subtle pace, not fast). */
 .pp-gradient-silver{
   background: linear-gradient(120deg,
     #ffffff 0%,
@@ -289,7 +289,7 @@ body{font-family:'DM Sans',sans-serif;color:var(--ink);}
     #c5ccd8 88%,
     #fafbfd 100%);
   background-size: 500% 500%;
-  animation: ppShimmerSilver 8s linear infinite;
+  animation: ppShimmerSilver 22s ease-in-out infinite;
 }
 @keyframes ppShimmerSilver{
   0%   { background-position: 0% 0%; }
@@ -2276,23 +2276,22 @@ function renderPPHome(container){
           <ellipse cx="78" cy="44" rx="9" ry="13" fill="#ff6dbf" transform="rotate(22 78 44)"/>
         </svg>`;
       } else if(sym === "cat"){
-        // Line-art cat face for Pink Kitties — pointy ear lines, sleepy eyes, tiny nose,
-        // whiskers fanning out each side. Matches the hand-drawn reference image.
+        // Line-art cat face for Pink Kitties — matches the reference image:
+        // arched ears, sleepy ⌒ eyes, two-lobed heart nose, small W mouth, whiskers fanning out.
         const rot = Math.floor(Math.random()*30-15);
-        svg = `<svg viewBox="0 0 100 100" width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="transform:rotate(${rot}deg)" stroke="#ff6dbf" stroke-width="3" stroke-linecap="round" fill="none">
-          <path d="M22 32 L30 14 L40 30"/>
-          <path d="M60 30 L70 14 L78 32"/>
-          <path d="M32 48 Q38 42 44 48"/>
-          <path d="M56 48 Q62 42 68 48"/>
-          <path d="M46 60 L54 60 L50 65 Z" fill="#ff6dbf" stroke="none"/>
-          <path d="M50 65 Q47 70 43 68"/>
-          <path d="M50 65 Q53 70 57 68"/>
-          <line x1="40" y1="62" x2="14" y2="56"/>
-          <line x1="40" y1="66" x2="10" y2="66"/>
-          <line x1="40" y1="70" x2="14" y2="76"/>
-          <line x1="60" y1="62" x2="86" y2="56"/>
-          <line x1="60" y1="66" x2="90" y2="66"/>
-          <line x1="60" y1="70" x2="86" y2="76"/>
+        svg = `<svg viewBox="0 0 100 100" width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="transform:rotate(${rot}deg)" stroke="#ff6dbf" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none">
+          <path d="M22 36 Q22 18 30 14 Q33 22 38 32"/>
+          <path d="M62 32 Q67 22 70 14 Q78 18 78 36"/>
+          <path d="M30 50 Q36 44 42 50"/>
+          <path d="M58 50 Q64 44 70 50"/>
+          <path d="M46 60 Q48 57 50 60 Q52 57 54 60 L50 67 Z" fill="#ff6dbf" stroke-width="1.5"/>
+          <path d="M44 71 Q47 74 50 71 Q53 74 56 71"/>
+          <path d="M40 64 Q28 63 14 60"/>
+          <path d="M40 68 Q26 69 12 70"/>
+          <path d="M40 72 Q28 73 14 78"/>
+          <path d="M60 64 Q72 63 86 60"/>
+          <path d="M60 68 Q74 69 88 70"/>
+          <path d="M60 72 Q72 73 86 78"/>
         </svg>`;
       } else if(sym === "diamond"){
         // Pink jewel diamond with FLAT TOP (round brilliant cut viewed from front).
