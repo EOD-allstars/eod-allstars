@@ -2181,14 +2181,42 @@ function renderPPHome(container){
           <ellipse cx="50" cy="60" rx="29" ry="27" fill="#ff6dbf"/>
         </svg>`;
       } else if(sym === "scratch"){
-        // Three parallel tapered claw scratches in hot pink (Claw Katz).
-        // Each scratch is a leaf/almond shape with sharp tips at both ends —
-        // matches the look of a real claw mark (fat in the middle, pointed ends).
+        // Three parallel JAGGED claw scratches in hot pink (Claw Katz).
+        // Each scratch is procedurally generated: a tapered claw centerline with
+        // random width perturbations along both edges → jagged, organic look like the reference.
         const rot = Math.floor(Math.random()*60-30);
+        function makeJaggedClaw(sx, sy, ex, ey, maxW){
+          const N = 16; // segments along each edge — more = finer jaggies
+          const dx = ex - sx, dy = ey - sy;
+          const len = Math.sqrt(dx*dx + dy*dy);
+          const ux = dx/N, uy = dy/N;
+          const px = -dy/len, py = dx/len; // unit perpendicular
+          const upper = [], lower = [];
+          for(let i = 0; i <= N; i++){
+            const t = i/N;
+            // Width follows a sin(πt) taper: 0 at both tips, max in the middle.
+            const baseW = maxW * Math.sin(Math.PI * t);
+            // Each edge point gets a wide-ranging random width multiplier
+            // for visibly jagged silhouette
+            const wU = baseW * (0.4 + Math.random() * 1.0);
+            const wL = baseW * (0.4 + Math.random() * 1.0);
+            const cx = sx + ux * i, cy = sy + uy * i;
+            upper.push([cx + px * wU, cy + py * wU]);
+            lower.push([cx - px * wL, cy - py * wL]);
+          }
+          let path = `M ${upper[0][0].toFixed(1)} ${upper[0][1].toFixed(1)}`;
+          for(let i = 1; i <= N; i++) path += ` L ${upper[i][0].toFixed(1)} ${upper[i][1].toFixed(1)}`;
+          for(let i = N; i >= 0; i--) path += ` L ${lower[i][0].toFixed(1)} ${lower[i][1].toFixed(1)}`;
+          return path + " Z";
+        }
+        // Three parallel scratches — thicker so jaggedness is visible at sparkle size.
+        const path1 = makeJaggedClaw(8, 78, 50, 16, 7);
+        const path2 = makeJaggedClaw(28, 88, 70, 26, 8);
+        const path3 = makeJaggedClaw(48, 94, 88, 34, 7.5);
         svg = `<svg viewBox="0 0 100 100" width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="transform:rotate(${rot}deg)">
-          <path d="M 8 80 Q 20 42 50 18 Q 38 58 8 80 Z" fill="#ff6dbf"/>
-          <path d="M 28 88 Q 40 50 70 22 Q 58 64 28 88 Z" fill="#ff6dbf"/>
-          <path d="M 48 92 Q 62 54 88 28 Q 76 70 48 92 Z" fill="#ff6dbf"/>
+          <path d="${path1}" fill="#ff6dbf"/>
+          <path d="${path2}" fill="#ff6dbf"/>
+          <path d="${path3}" fill="#ff6dbf"/>
         </svg>`;
       }
       sparkles += `<span class="pp-sparkle pp-sparkle-icon" style="left:${left}%;top:${top}%;--dx:${dx}px;--dy:${dy}px;--dur:${dur}s;--delay:${delay}s">${svg}</span>`;
