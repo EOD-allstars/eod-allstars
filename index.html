@@ -261,6 +261,12 @@ body{font-family:'DM Sans',sans-serif;color:var(--ink);}
   background-size: 400% 400%;
   animation: ppHueDrift 18s ease-in-out infinite;
 }
+/* Claw Katz uses a pastel lime green gradient instead of pink */
+.pp-gradient-lime{
+  background: linear-gradient(120deg, #f0ffd6 0%, #e0fbc8 25%, #d5f7c0 50%, #e8fcc8 75%, #f0ffd6 100%);
+  background-size: 400% 400%;
+  animation: ppHueDrift 18s ease-in-out infinite;
+}
 
 /* Drifting sparkle particles in the background */
 @keyframes ppSparkleDrift{
@@ -963,7 +969,40 @@ const TEAMS=[
    ],
    templates:{thursday:{id:"thursday",display:"Thursday",time:"7:30 pm - 9:00 pm",duration:90},friday:{id:"friday",display:"Friday",time:"5:15 pm - 6:45 pm",duration:90}}},
   {id:"claw_katz",name:"Claw Katz",abbr:"CK",logo:"logo-claw-katz.png",
-   stunts:[{id:"stunt1",label:"Main Stunt",athletes:["Paige","Hailey","Bailey","Kaylee","Hayley","Miley","Kylie"]},{id:"stunt2",label:"2nd Stunt",athletes:["Paige","Hailey","Bailey","Kaylee","Hayley","Miley","Kylie"]}],
+   noClassPlan:true,
+   useStuntSetup:true,
+   hasHouses:true,
+   sparkleStyle:"claws",
+   taglineEmoji:"🐾",
+   roster:["Vogue","Max","Mikayla","Mia S","Airlie","Maddi","Charlotte","Ella Rae","Imogen","Elikah","Zayli","Amayah","Sophia","Gracie","Jemma","Madi","Addison","Ivy","Sophie","Mia U","Peyton","Amelia","Tahliyah","Paris","Yishay","Aneke","Makki G","Pheonix","Ella"],
+   ppStunts:[
+     {id:"ck_main",label:"Main Stunt",desc:"",groups:[
+       {id:"ck_main_max",name:"Max"},
+       {id:"ck_main_vogue",name:"Vogue"},
+       {id:"ck_main_zayli",name:"Zayli"},
+       {id:"ck_main_mia",name:"Mia"},
+       {id:"ck_main_makki",name:"Makki G"},
+       {id:"ck_main_airlie",name:"Airlie"},
+       {id:"ck_main_mikayla",name:"Mikayla"}
+     ]},
+     {id:"ck_s2",label:"2nd Stunt",desc:"Full up & mini pyramid",groups:[
+       {id:"ck_s2_vogue",name:"Vogue"},
+       {id:"ck_s2_mia",name:"Mia"},
+       {id:"ck_s2_makki",name:"Makki G"},
+       {id:"ck_s2_airlie",name:"Airlie"},
+       {id:"ck_s2_mikayla",name:"Mikayla"}
+     ]},
+     {id:"ck_pyramid",label:"Pyramid",desc:"",groups:[
+       {id:"ck_pyramid_max",name:"Max"},
+       {id:"ck_pyramid_vogue",name:"Vogue"},
+       {id:"ck_pyramid_zayli",name:"Zayli"},
+       {id:"ck_pyramid_mia",name:"Mia"},
+       {id:"ck_pyramid_makki",name:"Makki G"},
+       {id:"ck_pyramid_airlie",name:"Airlie"},
+       {id:"ck_pyramid_mikayla",name:"Mikayla"}
+     ]}
+   ],
+   stunts:[{id:"stunt1",label:"Main Stunt",athletes:["Max","Vogue","Zayli","Mia","Makki G","Airlie","Mikayla"]},{id:"stunt2",label:"2nd Stunt",athletes:["Vogue","Mia","Makki G","Airlie","Mikayla"]}],
    templates:{tuesday:{id:"tuesday",display:"Tuesday",time:"5:00 pm - 6:45 pm",duration:105},thursday:{id:"thursday",display:"Thursday",time:"6:00 pm - 7:30 pm",duration:90}}},
   {id:"diamonds",name:"Diamonds",abbr:"DIA",logo:"logo-diamonds.png",
    stunts:[{id:"stunt1",label:"Main Stunt",athletes:["Amarni","Vogue","Maci","Emma","Freyah"]}],
@@ -1052,6 +1091,46 @@ const TEAMS=[
    stunt1Only:["Keeley","Lillie","Airlie"],
    templates:{tuesday:{id:"tuesday",display:"Tuesday",time:"7:30 pm - 9:00 pm",duration:90},thursday:{id:"thursday",display:"Thursday",time:"7:30 pm - 9:00 pm",duration:90}}},
   {id:"pink_kitties",name:"Pink Kitties",abbr:"PK",logo:"logo-pink-kitties.png",
+   noClassPlan:true,
+   useStuntSetup:true,
+   hasHouses:true,
+   sparkleStyle:"kitties",
+   taglineEmoji:"🐾",
+   roster:["Georgia","Makkie","Scarlett","Ada","Ivy","Mia","Zara U","Edyen","Sydney","Quinn","Millah","Zara I","Chloe","Amarni","Harper","Ayla","Sienna","Amelia","Pippa","River","Maeli","Zayli","Edie"],
+   ppStunts:[
+     {id:"pk_s1a",label:"Main Stunt 1st Half",desc:"Start to kick half",groups:[
+       {id:"pk_s1a_makkie",name:"Makkie"},
+       {id:"pk_s1a_ada",name:"Ada"},
+       {id:"pk_s1a_ivy",name:"Ivy"},
+       {id:"pk_s1a_zara",name:"Zara"},
+       {id:"pk_s1a_scarlett",name:"Scarlett"},
+       {id:"pk_s1a_mia",name:"Mia"}
+     ]},
+     {id:"pk_s1b",label:"Main Stunt 2nd Half",desc:"1/2 twist arabesque to end",groups:[
+       {id:"pk_s1b_makkie",name:"Makkie"},
+       {id:"pk_s1b_ada",name:"Ada"},
+       {id:"pk_s1b_ivy",name:"Ivy"},
+       {id:"pk_s1b_zara",name:"Zara"},
+       {id:"pk_s1b_scarlett",name:"Scarlett"},
+       {id:"pk_s1b_mia",name:"Mia"}
+     ]},
+     {id:"pk_minipyr",label:"Mini Pyramid",desc:"",groups:[
+       {id:"pk_minipyr_makkie",name:"Makkie"},
+       {id:"pk_minipyr_ada",name:"Ada"},
+       {id:"pk_minipyr_ivy",name:"Ivy"},
+       {id:"pk_minipyr_zara",name:"Zara"},
+       {id:"pk_minipyr_scarlett",name:"Scarlett"},
+       {id:"pk_minipyr_mia",name:"Mia"}
+     ]},
+     {id:"pk_pyramid",label:"Pyramid",desc:"",groups:[
+       {id:"pk_pyramid_makkie",name:"Makkie"},
+       {id:"pk_pyramid_ada",name:"Ada"},
+       {id:"pk_pyramid_ivy",name:"Ivy"},
+       {id:"pk_pyramid_zara",name:"Zara"},
+       {id:"pk_pyramid_scarlett",name:"Scarlett"},
+       {id:"pk_pyramid_mia",name:"Mia"}
+     ]}
+   ],
    stunts:[{id:"stunt1",label:"Main Stunt",athletes:["Makkie","Ada","Ivy","Zara","Scarlett","Mia"]}],
    templates:{tuesday:{id:"tuesday",display:"Tuesday",time:"4:00 pm - 5:30 pm",duration:90},wednesday:{id:"wednesday",display:"Wednesday",time:"4:00 pm - 6:00 pm",duration:120}}}
 ];
@@ -2035,17 +2114,23 @@ function renderPPHome(container){
   //   "silver"   → diamonds (Tiny Diamonds)
   //   "assassin" → sniper scope reticles + X marks (Pink Assassins)
   //   "paws"     → hot pink paw prints (Pink Panthers)
+  //   "kitties"  → paws + cat face silhouettes (Pink Kitties)
+  //   "claws"    → paws + scratch marks (Claw Katz)
   //   default    → pink stars (fallback)
   const isAssassin = team.sparkleStyle === "assassin";
   const isPaws     = team.sparkleStyle === "paws";
-  const useSvg     = isAssassin || isPaws;
+  const isKitties  = team.sparkleStyle === "kitties";
+  const isClaws    = team.sparkleStyle === "claws";
+  const useSvg     = isAssassin || isPaws || isKitties || isClaws;
   const sparkleSyms =
     team.sparkleStyle === "silver" ? ["✦","✧","◆","♦","✩","✺"] :
-    isAssassin                     ? ["scope","x"] :   // SVG markers, expanded below
-    isPaws                         ? ["paw"] :         // SVG marker
+    isAssassin                     ? ["scope","x"] :
+    isPaws                         ? ["paw"] :
+    isKitties                      ? ["paw","cat"] :
+    isClaws                        ? ["paw","scratch"] :   // Claw Katz: paws + scratch marks
                                      ["✦","✧","٭","✩","★"];
-  // Slightly fewer sparkles when they're large — keeps the page from feeling cluttered.
-  const sparkleCount = useSvg ? 10 : 14;
+  // Doubled counts so the page feels nice and busy with floaties
+  const sparkleCount = useSvg ? 20 : 28;
   let sparkles = "";
   for(let i=0;i<sparkleCount;i++){
     const left = Math.floor(Math.random()*95);
@@ -2087,6 +2172,23 @@ function renderPPHome(container){
           <ellipse cx="60" cy="22" rx="9" ry="13" fill="#ff6dbf" transform="rotate(8 60 22)"/>
           <ellipse cx="78" cy="44" rx="9" ry="13" fill="#ff6dbf" transform="rotate(22 78 44)"/>
         </svg>`;
+      } else if(sym === "cat"){
+        // Cat face silhouette: round face with two pointed triangle ears (Pink Kitties)
+        const rot = Math.floor(Math.random()*30-15);
+        svg = `<svg viewBox="0 0 100 100" width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="transform:rotate(${rot}deg)">
+          <path d="M22 32 L30 8 L48 36 Z" fill="#ff6dbf"/>
+          <path d="M78 32 L70 8 L52 36 Z" fill="#ff6dbf"/>
+          <ellipse cx="50" cy="60" rx="29" ry="27" fill="#ff6dbf"/>
+        </svg>`;
+      } else if(sym === "scratch"){
+        // Three parallel diagonal claw-scratches in hot pink (Claw Katz).
+        // Slight tilt variation per scratch to feel hand-drawn.
+        const rot = Math.floor(Math.random()*60-30);
+        svg = `<svg viewBox="0 0 100 100" width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="transform:rotate(${rot}deg)">
+          <line x1="22" y1="80" x2="58" y2="22" stroke="#ff6dbf" stroke-width="7" stroke-linecap="round"/>
+          <line x1="40" y1="84" x2="76" y2="26" stroke="#ff6dbf" stroke-width="7" stroke-linecap="round"/>
+          <line x1="58" y1="86" x2="92" y2="30" stroke="#ff6dbf" stroke-width="7" stroke-linecap="round"/>
+        </svg>`;
       }
       sparkles += `<span class="pp-sparkle pp-sparkle-icon" style="left:${left}%;top:${top}%;--dx:${dx}px;--dy:${dy}px;--dur:${dur}s;--delay:${delay}s">${svg}</span>`;
     }else{
@@ -2100,10 +2202,14 @@ function renderPPHome(container){
   const sparkleClass = team.sparkleStyle === "silver"   ? "pp-sparkle-silver"
                      : team.sparkleStyle === "assassin" ? "pp-sparkle-assassin"
                      : team.sparkleStyle === "paws"     ? "pp-sparkle-paws"
+                     : team.sparkleStyle === "kitties"  ? "pp-sparkle-paws"  // reuse paws styling (hot pink glow) for kitties
+                     : team.sparkleStyle === "claws"    ? "pp-sparkle-paws"  // reuse paws styling (hot pink glow) for claws
                      : "";
+  // Background gradient: lime green for Claw Katz, default pink for everyone else.
+  const bgClass = team.sparkleStyle === "claws" ? "pp-gradient-lime" : "pp-gradient-bg";
 
   let html = `
-  <div class="pp-bigscreen-scope pp-gradient-bg ${sparkleClass}" style="position:relative;flex:1;overflow-y:auto;padding:20px 18px 30px;box-sizing:border-box" id="pp-home-wrap">
+  <div class="pp-bigscreen-scope ${bgClass} ${sparkleClass}" style="position:relative;flex:1;overflow-y:auto;padding:20px 18px 30px;box-sizing:border-box" id="pp-home-wrap">
     ${sparkles}
     <button type="button" class="pp-mute-btn" data-pp-home-action="mute" title="${ppMuted?"Unmute":"Mute"}">${ppMuted?"🔇":"🔊"}</button>
 
