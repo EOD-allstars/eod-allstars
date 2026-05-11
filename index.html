@@ -2245,7 +2245,24 @@ function updateStunt(secId,name,field,val){const plan=getPlan();if(!plan)return;
 function editPlan(){const plan=getPlan();if(!plan)return;startBuilder(plan.templateId,plan);}
 
 // ── PINK KITTIES COORDINATION ──
-const COORD_SECTIONS=["Opening Cleaning","Opening Tumbling","Main Stunt","Mini Pyramid","Transitions / Running / Choreo","Jumps","Tosses","Pyramid","End Dance","Fullouts","Conditioning"];
+// Sections per team — each team can have its own list. Pink Kitties + Claw Katz are populated; others fall back to PK's list (used only if added to COORD_TEAMS).
+const COORD_SECTIONS_BY_TEAM = {
+  pink_kitties: ["Opening Cleaning","Opening Tumbling","Main Stunt","Mini Pyramid","Transitions / Running / Choreo","Jumps","Tosses","Pyramid","End Dance","Fullouts","Conditioning"],
+  claw_katz:    ["Opening Choreo Cleaning","Opening Running Tumbling","Main Stunt","Fullup and Mini Pyramid","Standing Tumbling & Jumps","Tosses","Pyramid","End Dance","Section Run Throughs","Fullouts"]
+};
+// Training days per team — Pink Kitties = Tues/Wed, Claw Katz = Mon/Tues
+const COORD_DAYS_BY_TEAM = {
+  pink_kitties: [{id:"tues",short:"Tues",long:"Tuesday"},  {id:"wed", short:"Wed", long:"Wednesday"}],
+  claw_katz:    [{id:"mon", short:"Mon", long:"Monday"},   {id:"tues",short:"Tues",long:"Tuesday"}]
+};
+function coordSectionsFor(teamId){ return COORD_SECTIONS_BY_TEAM[teamId] || COORD_SECTIONS_BY_TEAM.pink_kitties; }
+function coordDaysFor(teamId){ return COORD_DAYS_BY_TEAM[teamId] || COORD_DAYS_BY_TEAM.pink_kitties; }
+function coordDayLabel(teamId, dayId){
+  const d = coordDaysFor(teamId).find(x=>x.id===dayId);
+  return d ? d.long : dayId;
+}
+// Legacy global — used by old renderCoordView (Pink Kitties' legacy dark view). Keep as PK's list for back-compat.
+const COORD_SECTIONS = COORD_SECTIONS_BY_TEAM.pink_kitties;
 const COORD_COACHES=[{id:"alissa",name:"Alissa",color:"#e91e8c"},{id:"lydia",name:"Lydia",color:"#4caf50"}];
 const COORD_COLORS={"alissa":"#e91e8c","lydia":"#4caf50"};
 // Which teams have a populated coordination view. Others get the empty "no coaches yet" state.
@@ -2480,7 +2497,7 @@ function coordCellClick(week,day,sec){
   const data=coordCache(curTeamId);const cell=data[curCoordKey]||{};
   const existing=cell[coordCoach+"_mins"]||0;
   document.getElementById("popup-title").textContent=esc(sec);
-  document.getElementById("popup-sub").textContent=`${coach.name} · ${day==="tues"?"Tuesday":"Wednesday"}`;
+  document.getElementById("popup-sub").textContent=`${coach.name} · ${coordDayLabel(curTeamId, day)}`;
   if(existing)document.getElementById("popup-sub").textContent+=` · currently ${existing} min`;
   document.getElementById("coord-popup").style.display="flex";
 }
@@ -2549,14 +2566,16 @@ function renderPPCoaches(container){
   startCoordListener(curTeamId);
   const weeks = getCoordWeeks();
   const data = coordCache(curTeamId);
+  const sections = coordSectionsFor(curTeamId);
+  const days = coordDaysFor(curTeamId);
 
   // Totals per section
   const totals={};
-  COORD_SECTIONS.forEach(sec=>{totals[sec]={alissa:0,lydia:0};});
+  sections.forEach(sec=>{totals[sec]={alissa:0,lydia:0};});
   weeks.forEach(w=>{
-    ["tues","wed"].forEach(day=>{
-      COORD_SECTIONS.forEach(sec=>{
-        const cell=data[`${w.key}_${day}_${sec}`];
+    days.forEach(d=>{
+      sections.forEach(sec=>{
+        const cell=data[`${w.key}_${d.id}_${sec}`];
         if(cell){
           if(cell.alissa_mins) totals[sec].alissa += cell.alissa_mins;
           if(cell.lydia_mins)  totals[sec].lydia  += cell.lydia_mins;
@@ -2577,47 +2596,52 @@ function renderPPCoaches(container){
       ${coordCoach?`<span style="font-size:11px;color:var(--stone);margin-left:4px;font-style:italic">tap a cell to log time</span>`:""}
     </div>`;
 
-  // Grid
-  let grid = `<div style="margin:0 14px;background:rgba(255,255,255,0.85);border-radius:18px;padding:14px;overflow-x:auto;box-shadow:0 6px 22px rgba(196,85,154,0.10)">
-    <table style="border-collapse:collapse;min-width:620px;width:100%">
+  // Grid — every cell has solid borders so it reads like a proper table
+  const GLINE  = "1.5px solid #e8c8db";   // standard gridline
+  const GHEAVY = "2.5px solid #d99cc0";   // heavier divider between weeks
+  let grid = `<div style="margin:0 14px;background:rgba(255,255,255,0.92);border-radius:18px;padding:14px;overflow-x:auto;box-shadow:0 6px 22px rgba(196,85,154,0.10)">
+    <table style="border-collapse:collapse;min-width:${Math.max(620, 180 + weeks.length*120 + 70)}px;width:100%;border:${GLINE}">
       <thead>
         <tr>
-          <th style="text-align:left;padding:8px 12px;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--stone);border-bottom:2px solid #f0e0e8;min-width:180px">section</th>`;
-  weeks.forEach(w=>{
-    grid += `<th colspan="2" style="text-align:center;padding:6px 4px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--stone);border-bottom:2px solid #f0e0e8;border-left:2px solid #f7e8f0">
-      <div>${w.label}</div><div style="font-size:8px;font-weight:400;color:#aaa">${w.date}</div>
+          <th style="text-align:left;padding:10px 14px;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--stone);border-bottom:${GHEAVY};border-right:${GHEAVY};min-width:180px;background:rgba(248,238,243,0.6)">Section</th>`;
+  weeks.forEach((w,wi)=>{
+    grid += `<th colspan="${days.length}" style="text-align:center;padding:8px 6px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--stone);border-bottom:${GHEAVY};${wi<weeks.length-1?`border-right:${GHEAVY};`:`border-right:${GHEAVY};`}background:rgba(248,238,243,0.6)">
+      <div style="font-size:11px">${w.label}</div><div style="font-size:9px;font-weight:500;color:#a07c91;margin-top:2px">${w.date}</div>
     </th>`;
   });
-  grid += `<th style="text-align:center;padding:6px 8px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--stone);border-bottom:2px solid #f0e0e8;border-left:2px solid #f7e8f0">total</th>
+  grid += `<th style="text-align:center;padding:8px 10px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--stone);border-bottom:${GHEAVY};background:rgba(248,238,243,0.6)">Total</th>
         </tr>
-        <tr><td></td>`;
-  weeks.forEach(w=>{
-    grid += `<td style="text-align:center;padding:3px 4px;font-size:8px;color:var(--stone);border-left:2px solid #f7e8f0">Tues</td><td style="text-align:center;padding:3px 4px;font-size:8px;color:var(--stone)">Wed</td>`;
+        <tr><th style="border-right:${GHEAVY};border-bottom:${GLINE};background:rgba(248,238,243,0.4)"></th>`;
+  weeks.forEach((w,wi)=>{
+    days.forEach((d,di)=>{
+      const rightBorder = di===days.length-1 ? `border-right:${GHEAVY};` : `border-right:${GLINE};`;
+      grid += `<th style="text-align:center;padding:5px 4px;font-size:9px;font-weight:600;color:#a07c91;${rightBorder}border-bottom:${GLINE};background:rgba(248,238,243,0.4)">${d.short}</th>`;
+    });
   });
-  grid += `<td></td></tr></thead><tbody>`;
+  grid += `<th style="border-bottom:${GLINE};background:rgba(248,238,243,0.4)"></th></tr></thead><tbody>`;
 
-  COORD_SECTIONS.forEach((sec,si)=>{
-    const rowBg = si%2===0 ? "rgba(252,248,251,0.6)" : "transparent";
-    grid += `<tr style="background:${rowBg}"><td style="padding:9px 12px;font-size:12px;font-weight:500;color:var(--ink);border-bottom:1px solid #f7eef3">${esc(sec)}</td>`;
-    weeks.forEach(w=>{
-      ["tues","wed"].forEach(day=>{
-        const key = `${w.key}_${day}_${sec}`;
+  sections.forEach((sec,si)=>{
+    const rowBg = si%2===0 ? "rgba(252,248,251,0.5)" : "white";
+    grid += `<tr style="background:${rowBg}"><td style="padding:10px 14px;font-size:12px;font-weight:600;color:var(--ink);border-bottom:${GLINE};border-right:${GHEAVY}">${esc(sec)}</td>`;
+    weeks.forEach((w,wi)=>{
+      days.forEach((d,di)=>{
+        const key = `${w.key}_${d.id}_${sec}`;
         const cell = data[key]||{};
         const aMins = cell.alissa_mins||0, lMins = cell.lydia_mins||0;
         const hasA = aMins>0, hasL = lMins>0;
-        const borderLeft = day==="tues" ? "border-left:2px solid #f7e8f0;" : "";
+        const rightBorder = di===days.length-1 ? `border-right:${GHEAVY};` : `border-right:${GLINE};`;
         let cellHtml = "";
         if(hasA||hasL){
           const parts = [];
-          if(hasA) parts.push(`<span style="background:${COORD_COLORS.alissa};color:white;font-weight:700;padding:2px 6px;border-radius:8px;font-size:10px">${aMins}</span>`);
-          if(hasL) parts.push(`<span style="background:${COORD_COLORS.lydia};color:white;font-weight:700;padding:2px 6px;border-radius:8px;font-size:10px">${lMins}</span>`);
-          cellHtml = `<div style="display:flex;gap:3px;justify-content:center;align-items:center">${parts.join("")}</div>`;
+          if(hasA) parts.push(`<span style="background:${COORD_COLORS.alissa};color:white;font-weight:700;padding:3px 7px;border-radius:8px;font-size:10px;line-height:1">${aMins}</span>`);
+          if(hasL) parts.push(`<span style="background:${COORD_COLORS.lydia};color:white;font-weight:700;padding:3px 7px;border-radius:8px;font-size:10px;line-height:1">${lMins}</span>`);
+          cellHtml = `<div style="display:flex;gap:3px;justify-content:center;align-items:center;flex-wrap:wrap">${parts.join("")}</div>`;
         }
-        grid += `<td style="padding:4px;border-bottom:1px solid #f7eef3;${borderLeft}cursor:${coordCoach?"pointer":"default"};min-width:54px;height:42px;text-align:center" onclick="coordCellClick('${w.key}','${day}','${esc(sec)}')">${cellHtml}</td>`;
+        grid += `<td style="padding:5px;border-bottom:${GLINE};${rightBorder}cursor:${coordCoach?"pointer":"default"};min-width:56px;height:44px;text-align:center;vertical-align:middle" onclick="coordCellClick('${w.key}','${d.id}','${esc(sec)}')">${cellHtml}</td>`;
       });
     });
     const tot = totals[sec].alissa + totals[sec].lydia;
-    grid += `<td style="padding:8px 8px;font-size:12px;font-weight:700;color:var(--ink);text-align:center;border-bottom:1px solid #f7eef3;border-left:2px solid #f7e8f0">${tot||"—"}</td></tr>`;
+    grid += `<td style="padding:8px 10px;font-size:13px;font-weight:700;color:${tot?"var(--ink)":"#bbb"};text-align:center;border-bottom:${GLINE}">${tot||"—"}</td></tr>`;
   });
   grid += `</tbody></table></div>`;
 
