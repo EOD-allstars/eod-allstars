@@ -26,22 +26,34 @@ body{font-family:'DM Sans',sans-serif;color:var(--ink);}
 #app{width:100vw;height:100vh;display:flex;flex-direction:column;overflow:hidden;}
 .screen{display:none;width:100%;flex:1;min-height:0;overflow:hidden;}
 .screen.active{display:flex;flex-direction:column;}
-.topbar{background:var(--ink);display:flex;align-items:center;padding:0 20px;height:56px;flex-shrink:0;gap:12px;}
+.topbar{background:transparent;display:flex;align-items:center;padding:0 20px;height:56px;flex-shrink:0;gap:12px;}
 .topbar-logo{height:44px;width:auto;}
-.topbar-wordmark{font-family:'DM Serif Display',serif;font-size:21px;font-style:italic;color:#f0efed;}
-.topbar-sub{font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#555;}
+.topbar-wordmark{font-family:'DM Serif Display',serif;font-size:21px;font-style:italic;color:#1a1a1c;}
+.topbar-sub{font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#777;}
 .sync-wrap{display:flex;align-items:center;gap:5px;margin-left:auto;}
-.sync-dot{width:7px;height:7px;border-radius:50%;background:#444;flex-shrink:0;}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:#bbb;flex-shrink:0;}
 .sync-dot.ok{background:#4a9d6f;}.sync-dot.err{background:#b33a2d;}.sync-dot.busy{background:#c4a44a;animation:pulse 1s infinite;}
-.sync-lbl{font-size:9px;color:#555;}
+.sync-lbl{font-size:9px;color:#888;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.backbar{background:var(--ink);display:flex;align-items:center;padding:0 16px;height:44px;flex-shrink:0;gap:10px;}
-.back-btn{background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:11px;color:#666;padding:0;}
-.back-btn:hover{color:#bbb;}
-.backbar-title{font-family:'DM Serif Display',serif;font-size:16px;font-style:italic;color:#ccc;}
+/* Backbar — transparent, large pink Bagel Fat One back button */
+.backbar{background:transparent;display:flex;align-items:center;padding:18px 22px 8px;min-height:60px;flex-shrink:0;gap:14px;}
+.back-btn{
+  background:none;border:none;cursor:pointer;
+  font-family:'Bagel Fat One','DM Serif Display',sans-serif;
+  font-size:24px;font-weight:400;
+  color:#ec4899;
+  padding:0;
+  display:inline-flex;align-items:center;gap:8px;
+  letter-spacing:0.3px;
+  -webkit-tap-highlight-color:transparent;
+  transition:transform .12s,color .12s;
+}
+.back-btn:hover{color:#db2777;}
+.back-btn:active{transform:scale(.96);}
+.backbar-title{font-family:'DM Serif Display',serif;font-size:15px;font-style:italic;color:#888;}
 .backbar-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
-.pill-btn{padding:5px 13px;background:transparent;border:1px solid #3a3a3a;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:10px;font-weight:600;color:#999;cursor:pointer;}
-.pill-btn:hover,.pill-btn.dark{background:rgba(255,255,255,.09);border-color:#555;color:#ccc;}
+.pill-btn{padding:7px 16px;background:transparent;border:1.5px solid #ec4899;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;color:#ec4899;cursor:pointer;}
+.pill-btn:hover,.pill-btn.dark{background:rgba(236,72,153,.1);border-color:#db2777;color:#db2777;}
 /* ===== HOME PAGE — landing screen =====
    The dark topbar is hidden here: the giant Bebas Neue hero replaces its
    "EOD Allstars / fullout tracker" branding role. Sync indicator stays
@@ -447,6 +459,18 @@ body{font-family:'DM Sans',sans-serif;color:var(--ink);}
 .pp-hit-rate{font-family:'DM Serif Display',serif;font-size:52px;font-style:italic;text-align:center;line-height:1;}
 .confetti-piece{position:fixed;width:10px;height:10px;border-radius:2px;pointer-events:none;z-index:9999;animation:confettiFall linear forwards;}
 @keyframes confettiFall{0%{transform:translateY(-20px) rotate(0deg);opacity:1;}100%{transform:translateY(110vh) rotate(720deg);opacity:0;}}
+/* Streamers — small ribbon burst that fires on every HIT */
+.pp-streamer{
+  position:fixed; pointer-events:none; z-index:9998;
+  border-radius:3px;
+  transform-origin:center;
+  animation: streamerBurst ease-out forwards;
+}
+@keyframes streamerBurst{
+  0%   { transform: translate(0,0) rotate(0deg); opacity:1; }
+  15%  { opacity:1; }
+  100% { transform: translate(var(--tx), calc(var(--ty) + 320px)) rotate(var(--rot)); opacity:0; }
+}
 
 /* ════════════ PINK PANTHERS — fancy home + sub-pages ════════════ */
 @font-face{font-family:'Bagel Fat One';font-display:swap;}
@@ -751,6 +775,40 @@ body{font-family:'DM Sans',sans-serif;color:var(--ink);}
 }
 .pp-mute-btn:active{ transform: scale(0.9); }
 
+/* Inline back button used inside pp sub-pages (Coaches, Star Chart, etc.) */
+.pp-page-back{
+  background:none;border:none;cursor:pointer;
+  font-family:'Bagel Fat One','DM Serif Display',sans-serif;
+  font-size:22px;color:#ec4899;
+  padding:0;
+  display:inline-flex;align-items:center;gap:6px;
+  -webkit-tap-highlight-color:transparent;
+  transition:transform .12s, color .12s;
+}
+.pp-page-back:hover{color:#db2777;}
+.pp-page-back:active{transform:scale(.96);}
+
+/* Coaches pill — sits to the left of the mute button */
+.pp-coaches-btn{
+  position: absolute; top: 12px; right: 60px;
+  background: rgba(255,255,255,0.78); backdrop-filter: blur(8px);
+  border: 1px solid rgba(196,85,154,0.28); border-radius: 100px;
+  height: 38px; padding: 0 14px 0 12px;
+  display: inline-flex; align-items: center; gap: 6px;
+  cursor: pointer;
+  color: #c4559a;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.15s;
+  z-index: 5;
+}
+.pp-coaches-btn:active{ transform: scale(0.94); }
+.pp-coaches-ico{ font-size: 16px; line-height: 1; }
+.pp-coaches-lbl{
+  font-family: 'Bagel Fat One','DM Serif Display', sans-serif;
+  font-size: 15px; letter-spacing: 0.3px;
+  color: #ec4899;
+}
+
 /* ── Star Chart ── */
 .pp-star-row{
   display: grid; grid-template-columns: 36px 1fr auto; align-items: center;
@@ -881,32 +939,33 @@ body{font-family:'DM Sans',sans-serif;color:var(--ink);}
 /* ── Stunt Training expanded group cards ── */
 /* All groups for a stunt show on one screen; each card has HIT/MISS buttons inline. */
 .pp-stunt-cards-grid{
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 14px;
+  display: flex; flex-direction: column;
+  gap: 18px;
   padding: 0 18px 24px;
-  max-width: 900px;
+  max-width: 1200px;
   margin: 0 auto;
 }
+.pp-stunt-row{ display: flex; justify-content: center; gap: 16px; }
 .pp-stunt-card{
+  flex: 1 1 0; min-width: 0; max-width: 280px;
   background: white;
   border: 2px solid #ffc8e0;
-  border-radius: 18px;
-  padding: 18px 14px;
-  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  border-radius: 22px;
+  padding: 24px 18px;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
   text-align: center;
   box-shadow: 0 4px 14px rgba(196, 85, 154, 0.1);
 }
 .pp-stunt-card-name{
   font-family: 'Bagel Fat One', 'DM Serif Display', sans-serif;
-  font-size: 19px; color: #1a1a1a; letter-spacing: 0.3px;
+  font-size: 24px; color: #1a1a1a; letter-spacing: 0.3px;
 }
 .pp-stunt-card-pct{
   font-family: 'DM Serif Display', serif; font-style: italic;
-  font-size: 48px; line-height: 1; margin: 4px 0;
+  font-size: 62px; line-height: 1; margin: 8px 0;
 }
 .pp-stunt-card-count{
-  font-family: 'DM Sans', sans-serif; font-size: 13px;
+  font-family: 'DM Sans', sans-serif; font-size: 15px;
   color: var(--stone); letter-spacing: 0.5px;
 }
 .pp-stunt-card-actions{
@@ -1862,6 +1921,7 @@ function renderTeamTab(){
   else if(curTeamTab==="pp_fullout")renderPPFullout(c);
   else if(curTeamTab==="pp_star_chart")renderPPStarChart(c);
   else if(curTeamTab==="pp_colour_houses")renderPPColourHouses(c);
+  else if(curTeamTab==="pp_coaches")renderPPCoaches(c);
 }
 
 // ── FULLOUT VIEW ──
@@ -2188,20 +2248,37 @@ function editPlan(){const plan=getPlan();if(!plan)return;startBuilder(plan.templ
 const COORD_SECTIONS=["Opening Cleaning","Opening Tumbling","Main Stunt","Mini Pyramid","Transitions / Running / Choreo","Jumps","Tosses","Pyramid","End Dance","Fullouts","Conditioning"];
 const COORD_COACHES=[{id:"alissa",name:"Alissa",color:"#e91e8c"},{id:"lydia",name:"Lydia",color:"#4caf50"}];
 const COORD_COLORS={"alissa":"#e91e8c","lydia":"#4caf50"};
-let coordCoach=null,coordCache=null,coordListener=null;
+// Which teams have a populated coordination view. Others get the empty "no coaches yet" state.
+const COORD_TEAMS = new Set(["pink_kitties","claw_katz"]);
+let coordCoach=null;
+const coordCacheByTeam = {};      // teamId → data object
+const coordListenerByTeam = {};   // teamId → Firestore unsubscribe
 
-function coordCol(){return db.collection("teams").doc("pink_kitties").collection("coordination");}
+function coordCol(teamId){
+  teamId = teamId || curTeamId || "pink_kitties";
+  return db.collection("teams").doc(teamId).collection("coordination");
+}
+function coordCache(teamId){
+  teamId = teamId || curTeamId;
+  return coordCacheByTeam[teamId] || {};
+}
 
-function startCoordListener(){
-  if(coordListener)return;
-  coordListener=coordCol().doc("data").onSnapshot(snap=>{
-    coordCache=snap.exists?snap.data():{};
-    if(curTeamId==="pink_kitties"&&curTeamTab==="coord")renderCoordView(document.getElementById("team-content"));
+function startCoordListener(teamId){
+  teamId = teamId || curTeamId;
+  if(!teamId || coordListenerByTeam[teamId]) return;
+  coordListenerByTeam[teamId] = coordCol(teamId).doc("data").onSnapshot(snap=>{
+    coordCacheByTeam[teamId] = snap.exists ? snap.data() : {};
+    // Re-render whichever coord view is showing this team
+    if(curTeamId===teamId){
+      if(curTeamTab==="coord")          renderCoordView(document.getElementById("team-content"));
+      else if(curTeamTab==="pp_coaches") renderPPCoaches(document.getElementById("team-content"));
+    }
   });
 }
 
-async function saveCoordData(){
-  await coordCol().doc("data").set(coordCache||{});
+async function saveCoordData(teamId){
+  teamId = teamId || curTeamId;
+  await coordCol(teamId).doc("data").set(coordCacheByTeam[teamId]||{});
 }
 
 function getCoordWeeks(){
@@ -2218,9 +2295,9 @@ function getCoordWeeks(){
 }
 
 function renderCoordView(container){
-  startCoordListener();
+  startCoordListener(curTeamId);
   const weeks=getCoordWeeks();
-  const data=coordCache||{};
+  const data=coordCache(curTeamId);
 
   // Calculate totals per section
   const totals={};
@@ -2388,14 +2465,19 @@ function drawCoordPie(){
   });
 }
 
-function selectCoach(id){coordCoach=id;renderCoordView(document.getElementById("team-content"));}
+function selectCoach(id){
+  coordCoach=id;
+  const c = document.getElementById("team-content");
+  if(curTeamTab==="pp_coaches") renderPPCoaches(c);
+  else renderCoordView(c);
+}
 
 let curCoordKey=null;
 function coordCellClick(week,day,sec){
   if(!coordCoach)return;
   curCoordKey=`${week}_${day}_${sec}`;
   const coach=COORD_COACHES.find(c=>c.id===coordCoach);
-  const data=coordCache||{};const cell=data[curCoordKey]||{};
+  const data=coordCache(curTeamId);const cell=data[curCoordKey]||{};
   const existing=cell[coordCoach+"_mins"]||0;
   document.getElementById("popup-title").textContent=esc(sec);
   document.getElementById("popup-sub").textContent=`${coach.name} · ${day==="tues"?"Tuesday":"Wednesday"}`;
@@ -2405,11 +2487,12 @@ function coordCellClick(week,day,sec){
 
 async function setCoordMins(mins){
   if(!curCoordKey||!coordCoach)return;
-  coordCache=coordCache||{};
-  coordCache[curCoordKey]=coordCache[curCoordKey]||{};
-  coordCache[curCoordKey][coordCoach+"_mins"]=mins;
+  const tid = curTeamId;
+  coordCacheByTeam[tid] = coordCacheByTeam[tid] || {};
+  coordCacheByTeam[tid][curCoordKey] = coordCacheByTeam[tid][curCoordKey] || {};
+  coordCacheByTeam[tid][curCoordKey][coordCoach+"_mins"] = mins;
   document.getElementById("coord-popup").style.display="none";
-  await saveCoordData();
+  await saveCoordData(tid);
 }
 
 async function setCoordMinsCustom(){
@@ -2420,13 +2503,148 @@ async function setCoordMinsCustom(){
 
 async function clearCoordCell(){
   if(!curCoordKey||!coordCoach)return;
-  coordCache=coordCache||{};
-  if(coordCache[curCoordKey])delete coordCache[curCoordKey][coordCoach+"_mins"];
+  const tid = curTeamId;
+  coordCacheByTeam[tid] = coordCacheByTeam[tid] || {};
+  if(coordCacheByTeam[tid][curCoordKey]) delete coordCacheByTeam[tid][curCoordKey][coordCoach+"_mins"];
   document.getElementById("coord-popup").style.display="none";
-  await saveCoordData();
+  await saveCoordData(tid);
 }
 
 function closeCoordPopup(e){if(e.target.id==="coord-popup")document.getElementById("coord-popup").style.display="none";}
+
+// ── PP COACHES VIEW — light-theme coordination grid for pp teams ──
+// Empty state for teams not in COORD_TEAMS; full grid for Pink Kitties + Claw Katz.
+function renderPPCoaches(container){
+  const team = getTeam(curTeamId);
+  // Sparkles + bg class match the team home
+  const bgClass = team.sparkleStyle === "claws"         ? "pp-gradient-lime"
+                : team.sparkleStyle === "butterflies"   ? "pp-gradient-blue"
+                : team.sparkleStyle === "pink_diamonds" ? "pp-gradient-silver"
+                : team.sparkleStyle === "purrfect"      ? "pp-gradient-pink-light"
+                : team.sparkleStyle === "glitter_paws"  ? "pp-gradient-glitter-white"
+                : "pp-gradient-bg";
+
+  const headerHtml = `
+    <div style="padding:18px 18px 0;display:flex;align-items:center;gap:10px;margin-bottom:14px">
+      <button type="button" class="pp-page-back" onclick="curTeamTab='pp_home';renderTeamTab()">← back</button>
+      <div style="margin-left:auto;text-align:right">
+        <div style="font-family:'Bagel Fat One','DM Serif Display',sans-serif;font-size:28px;line-height:1;color:var(--ink)">Coaches</div>
+        <div style="font-size:10px;color:var(--stone);letter-spacing:1.5px;text-transform:uppercase;margin-top:3px">${esc(team.name)}</div>
+      </div>
+    </div>`;
+
+  if(!COORD_TEAMS.has(curTeamId)){
+    container.innerHTML = `
+      <div class="pp-bigscreen-scope ${bgClass}" style="flex:1;overflow-y:auto;box-sizing:border-box">
+        ${headerHtml}
+        <div style="padding:60px 30px;text-align:center;color:var(--stone)">
+          <div style="font-family:'Bagel Fat One','DM Serif Display',sans-serif;font-size:32px;color:#c4559a;margin-bottom:10px">No coaches yet</div>
+          <div style="font-size:14px;line-height:1.5;max-width:420px;margin:0 auto">Coach coordination tracking isn't set up for ${esc(team.name)} just yet. Check back soon!</div>
+        </div>
+      </div>`;
+    return;
+  }
+
+  // Populated coordination view (Pink Kitties + Claw Katz)
+  startCoordListener(curTeamId);
+  const weeks = getCoordWeeks();
+  const data = coordCache(curTeamId);
+
+  // Totals per section
+  const totals={};
+  COORD_SECTIONS.forEach(sec=>{totals[sec]={alissa:0,lydia:0};});
+  weeks.forEach(w=>{
+    ["tues","wed"].forEach(day=>{
+      COORD_SECTIONS.forEach(sec=>{
+        const cell=data[`${w.key}_${day}_${sec}`];
+        if(cell){
+          if(cell.alissa_mins) totals[sec].alissa += cell.alissa_mins;
+          if(cell.lydia_mins)  totals[sec].lydia  += cell.lydia_mins;
+        }
+      });
+    });
+  });
+
+  // Coach selector pills
+  const coachPicker = `
+    <div style="padding:0 18px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <span style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--stone)">Select coach</span>
+      ${COORD_COACHES.map(c=>`
+        <button type="button" onclick="selectCoach('${c.id}')" style="display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:100px;border:2px solid ${coordCoach===c.id?c.color:"rgba(196,85,154,0.25)"};background:${coordCoach===c.id?"rgba(255,255,255,0.95)":"rgba(255,255,255,0.6)"};cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .15s">
+          <span style="width:14px;height:14px;border-radius:50%;background:${c.color};flex-shrink:0"></span>
+          <span style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;color:${coordCoach===c.id?c.color:"#666"}">${c.name}</span>
+        </button>`).join("")}
+      ${coordCoach?`<span style="font-size:11px;color:var(--stone);margin-left:4px;font-style:italic">tap a cell to log time</span>`:""}
+    </div>`;
+
+  // Grid
+  let grid = `<div style="margin:0 14px;background:rgba(255,255,255,0.85);border-radius:18px;padding:14px;overflow-x:auto;box-shadow:0 6px 22px rgba(196,85,154,0.10)">
+    <table style="border-collapse:collapse;min-width:620px;width:100%">
+      <thead>
+        <tr>
+          <th style="text-align:left;padding:8px 12px;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--stone);border-bottom:2px solid #f0e0e8;min-width:180px">section</th>`;
+  weeks.forEach(w=>{
+    grid += `<th colspan="2" style="text-align:center;padding:6px 4px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--stone);border-bottom:2px solid #f0e0e8;border-left:2px solid #f7e8f0">
+      <div>${w.label}</div><div style="font-size:8px;font-weight:400;color:#aaa">${w.date}</div>
+    </th>`;
+  });
+  grid += `<th style="text-align:center;padding:6px 8px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--stone);border-bottom:2px solid #f0e0e8;border-left:2px solid #f7e8f0">total</th>
+        </tr>
+        <tr><td></td>`;
+  weeks.forEach(w=>{
+    grid += `<td style="text-align:center;padding:3px 4px;font-size:8px;color:var(--stone);border-left:2px solid #f7e8f0">Tues</td><td style="text-align:center;padding:3px 4px;font-size:8px;color:var(--stone)">Wed</td>`;
+  });
+  grid += `<td></td></tr></thead><tbody>`;
+
+  COORD_SECTIONS.forEach((sec,si)=>{
+    const rowBg = si%2===0 ? "rgba(252,248,251,0.6)" : "transparent";
+    grid += `<tr style="background:${rowBg}"><td style="padding:9px 12px;font-size:12px;font-weight:500;color:var(--ink);border-bottom:1px solid #f7eef3">${esc(sec)}</td>`;
+    weeks.forEach(w=>{
+      ["tues","wed"].forEach(day=>{
+        const key = `${w.key}_${day}_${sec}`;
+        const cell = data[key]||{};
+        const aMins = cell.alissa_mins||0, lMins = cell.lydia_mins||0;
+        const hasA = aMins>0, hasL = lMins>0;
+        const borderLeft = day==="tues" ? "border-left:2px solid #f7e8f0;" : "";
+        let cellHtml = "";
+        if(hasA||hasL){
+          const parts = [];
+          if(hasA) parts.push(`<span style="background:${COORD_COLORS.alissa};color:white;font-weight:700;padding:2px 6px;border-radius:8px;font-size:10px">${aMins}</span>`);
+          if(hasL) parts.push(`<span style="background:${COORD_COLORS.lydia};color:white;font-weight:700;padding:2px 6px;border-radius:8px;font-size:10px">${lMins}</span>`);
+          cellHtml = `<div style="display:flex;gap:3px;justify-content:center;align-items:center">${parts.join("")}</div>`;
+        }
+        grid += `<td style="padding:4px;border-bottom:1px solid #f7eef3;${borderLeft}cursor:${coordCoach?"pointer":"default"};min-width:54px;height:42px;text-align:center" onclick="coordCellClick('${w.key}','${day}','${esc(sec)}')">${cellHtml}</td>`;
+      });
+    });
+    const tot = totals[sec].alissa + totals[sec].lydia;
+    grid += `<td style="padding:8px 8px;font-size:12px;font-weight:700;color:var(--ink);text-align:center;border-bottom:1px solid #f7eef3;border-left:2px solid #f7e8f0">${tot||"—"}</td></tr>`;
+  });
+  grid += `</tbody></table></div>`;
+
+  container.innerHTML = `
+    <div class="pp-bigscreen-scope ${bgClass}" style="flex:1;overflow-y:auto;box-sizing:border-box;padding-bottom:30px">
+      ${headerHtml}
+      ${coachPicker}
+      ${grid}
+    </div>
+    <div id="coord-popup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;align-items:center;justify-content:center" onclick="closeCoordPopup(event)">
+      <div style="background:white;border-radius:16px;padding:24px;min-width:300px;max-width:360px;box-shadow:0 10px 40px rgba(0,0,0,.22)" onclick="event.stopPropagation()">
+        <div style="font-family:'DM Serif Display',serif;font-size:20px;font-style:italic;margin-bottom:4px;color:var(--ink)" id="popup-title"></div>
+        <div style="font-size:11px;color:var(--stone);margin-bottom:18px;letter-spacing:.3px" id="popup-sub"></div>
+        <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--stone);margin-bottom:10px">How many minutes?</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px">
+          ${[5,10,15,20,25,30,40,45,60].map(m=>`<button onclick="setCoordMins(${m})" style="padding:9px 14px;border:1.5px solid #e8c8db;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:#faf4f8;color:var(--ink);-webkit-tap-highlight-color:transparent">${m}</button>`).join("")}
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:18px">
+          <span style="font-size:12px;color:var(--stone)">custom:</span>
+          <input type="number" id="popup-custom" placeholder="e.g. 35" style="flex:1;padding:8px 10px;border:1.5px solid #e8c8db;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;background:#faf4f8"/>
+          <button onclick="setCoordMinsCustom()" style="padding:8px 14px;background:linear-gradient(135deg,#ec4899,#c4559a);color:white;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;letter-spacing:.5px;cursor:pointer">set</button>
+        </div>
+        <button onclick="clearCoordCell()" style="width:100%;padding:10px;background:transparent;border:1px solid #d97070;border-radius:10px;color:#b33a2d;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;letter-spacing:.5px;cursor:pointer;margin-bottom:8px">clear this entry</button>
+        <button onclick="document.getElementById('coord-popup').style.display='none'" style="width:100%;padding:10px;background:#f5eef3;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:11px;color:var(--stone);font-weight:700;letter-spacing:.5px;cursor:pointer">cancel</button>
+      </div>
+    </div>`;
+}
 
 // ── PINK PANTHERS STUNT TRACKER ──
 let ppCurStunt=null,ppCurGroup=null,ppSessionData={};
@@ -2484,6 +2702,19 @@ const PP_NOPERF_OPTIONS=[
   {id:"absent",label:"Absent",emoji:"🚫"},
   {id:"missed",label:"Missed it",emoji:"⏭"},
   {id:"na",label:"N/A",emoji:"➖"}
+];
+// Catalogue of other deductions (the "+ add" popup on the Fullout page)
+const PP_OTHER_DEDUCTIONS=[
+  {id:"tumb_fall",     label:"Tumbling fall",     value:0.25},
+  {id:"tumb_step",     label:"Tumbling step out", value:0.10},
+  {id:"tumb_form",     label:"Tumbling form",     value:0.05},
+  {id:"toss_drop",     label:"Toss not caught",   value:0.25},
+  {id:"jump_landing",  label:"Jump landing",      value:0.10},
+  {id:"jump_form",     label:"Jump form",         value:0.05},
+  {id:"timing",        label:"Timing error",      value:0.10},
+  {id:"choreo",        label:"Choreo miss",       value:0.10},
+  {id:"out_of_place",  label:"Out of place",      value:0.05},
+  {id:"missed_count",  label:"Missed count",      value:0.10}
 ];
 function ppDeductValue(id){
   const all=[...PP_DEDUCT_INFRACTIONS,...PP_DEDUCT_VIOLATIONS];
@@ -2854,6 +3085,10 @@ function renderPPHome(container){
   let html = `
   <div class="pp-bigscreen-scope ${bgClass} ${sparkleClass}" style="position:relative;flex:1;overflow-y:auto;padding:20px 18px 30px;box-sizing:border-box" id="pp-home-wrap">
     ${sparkles}
+    <button type="button" class="pp-coaches-btn" data-pp-home-action="goto-coaches" title="Coaches">
+      <span class="pp-coaches-ico">👥</span>
+      <span class="pp-coaches-lbl">coaches</span>
+    </button>
     <button type="button" class="pp-mute-btn" data-pp-home-action="mute" title="${ppMuted?"Unmute":"Mute"}">${ppMuted?"🔇":"🔊"}</button>
 
     <div style="text-align:center;margin-top:8px;margin-bottom:6px">
@@ -2940,6 +3175,7 @@ function renderPPHome(container){
       else if(action==="goto-team-stats"){ ppSound("tap"); curTeamTab="pp_team_stats"; renderTeamTab(); }
       else if(action==="goto-stars"){ ppSound("tap"); curTeamTab="pp_star_chart"; renderTeamTab(); }
       else if(action==="goto-houses"){ ppSound("tap"); curTeamTab="pp_colour_houses"; renderTeamTab(); }
+      else if(action==="goto-coaches"){ ppSound("tap"); curTeamTab="pp_coaches"; renderTeamTab(); }
       else if(action==="mute"){ ppToggleMute(); }
       else if(action==="timer-start"){ ppTimerStart(); }
       else if(action==="timer-pause"){ ppTimerPause(); }
@@ -2982,17 +3218,21 @@ function renderPPStuntTraining(container){
   html += `</div>`;
 
   // Expanded group cards — all groups visible at once with HIT/MISS buttons.
+  // Smart 2-row layout: 5→3+2, 7→4+3, 6→3+3, 8→4+4, etc. Bottom row is centered.
   if(activeStunt && activeStunt.groups && activeStunt.groups.length){
-    html += `<div class="pp-stunt-cards-grid">`;
-    activeStunt.groups.forEach(g=>{
-      // Read live state from the per-group draft (so navigation/screen changes don't lose data)
+    const groups = activeStunt.groups;
+    const n = groups.length;
+    const topCount = n <= 3 ? n : Math.ceil(n / 2);
+    const rows = [groups.slice(0, topCount)];
+    if(topCount < n) rows.push(groups.slice(topCount));
+    const renderCard = g => {
       const dkey = activeStunt.id + "_" + g.id;
       const draft = ppSessionDrafts[dkey] || {attempts:0, hits:0};
       const atts = draft.attempts || 0;
       const hits = draft.hits || 0;
       const pct = atts > 0 ? Math.round((hits/atts)*100) : null;
       const pctColor = pct === null ? "var(--stone)" : pctCol(pct);
-      html += `<div class="pp-stunt-card">
+      return `<div class="pp-stunt-card">
         <div class="pp-stunt-card-name">${esc(g.name)}'s group</div>
         <div class="pp-stunt-card-pct" style="color:${pctColor}">${pct === null ? "—" : pct + "%"}</div>
         <div class="pp-stunt-card-count">${hits} / ${atts}</div>
@@ -3001,6 +3241,10 @@ function renderPPStuntTraining(container){
           <button class="pp-stunt-card-hit" data-pp-st-action="hit" data-pp-st-stunt="${esc(activeStunt.id)}" data-pp-st-group="${esc(g.id)}">HIT! 🎉</button>
         </div>
       </div>`;
+    };
+    html += `<div class="pp-stunt-cards-grid">`;
+    rows.forEach(row=>{
+      html += `<div class="pp-stunt-row">${row.map(renderCard).join("")}</div>`;
     });
     html += `</div>`;
     // Save button at the bottom — commits all non-empty drafts as session docs
@@ -3025,6 +3269,9 @@ function renderPPStuntTraining(container){
       if(action==="back"){ ppSound("tap"); curTeamTab="pp_home"; renderTeamTab(); }
       else if(action==="set-tab"){ ppSound("tap"); ppStuntTrainingTab = btn.getAttribute("data-pp-st-tab"); renderTeamTab(); }
       else if(action==="hit"){
+        // Fire streamers from the button location
+        const r = btn.getBoundingClientRect();
+        launchStreamersAt(r.left + r.width/2, r.top + r.height/2);
         ppGroupHit(btn.getAttribute("data-pp-st-stunt"), btn.getAttribute("data-pp-st-group"));
       }
       else if(action==="miss"){
@@ -3607,6 +3854,23 @@ function updatePPDisplay(){
   if(hitsEl)hitsEl.textContent=hits;
 }
 
+// Small ribbon burst — fires on every HIT (separate from the bigger 100% confetti)
+function launchStreamersAt(x, y){
+  const colors=["#ec4899","#fcd34d","#ff7ec7","#f24fa8","#a855f7","#22d3ee","#84cc16"];
+  for(let i=0; i<14; i++){
+    const el=document.createElement("div");
+    el.className="pp-streamer";
+    // Upward cone with horizontal spread
+    const angle = -Math.PI/2 + (Math.random() - 0.5) * Math.PI * 0.9;
+    const speed = 160 + Math.random()*200;
+    const tx = Math.cos(angle) * speed;
+    const ty = Math.sin(angle) * speed;
+    el.style.cssText = `left:${x}px;top:${y}px;background:${colors[Math.floor(Math.random()*colors.length)]};width:${4+Math.random()*3}px;height:${22+Math.random()*16}px;--tx:${tx}px;--ty:${ty}px;--rot:${(Math.random()*1080)-540}deg;animation-duration:${1.0+Math.random()*0.6}s;`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(), 1900);
+  }
+}
+
 function launchConfetti(){
   const colors=["#e91e8c","#9b59b6","#f1c40f","#2ecc71","#3498db","#e74c3c","#ff9800"];
   // Play a fun ascending sound (audio context unlocked via ensureAudio)
@@ -3970,6 +4234,24 @@ async function ppFoAddTumbling(name,description){
   try{await ppFoCol().doc(ppFoCurId).set(cur);}catch(e){console.error("Failed to save tumbling:",e);}
 }
 
+// Add one entry per ticked deduction id (each with its own label + value)
+async function ppFoAddOtherDeductions(name, ids){
+  if(!ppFoCurId || !ids || !ids.length) return;
+  const cur=ppFoCache[ppFoCurId];
+  if(!cur) return;
+  if(!cur.tumbling)cur.tumbling=[];
+  const cleanName = (name||"").trim();
+  ids.forEach(id=>{
+    const d = PP_OTHER_DEDUCTIONS.find(x=>x.id===id);
+    if(!d) return;
+    cur.tumbling.push({id:uid(), name:cleanName, description:d.label, value:d.value, deductionId:id});
+  });
+  cur.updated_at=new Date().toISOString();
+  ppFoCache[ppFoCurId]=cur;
+  if(curTeamTab==="pp_fullout"&&!ppFoPopup)renderTeamTab();
+  try{await ppFoCol().doc(ppFoCurId).set(cur);}catch(e){console.error("Failed to save other deductions:",e);}
+}
+
 async function ppFoRemoveTumbling(tumblingId){
   if(!ppFoCurId) return;
   const cur=ppFoCache[ppFoCurId];
@@ -4106,8 +4388,8 @@ function renderPPFulloutEdit(container){
   html+=`<div style="margin-top:24px;background:white;border-radius:14px;padding:16px 18px;box-shadow:0 2px 12px rgba(0,0,0,.05)">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:${tumb.length?"12px":"6px"}">
       <div>
-        <div style="font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--stone)">tumbling deductions</div>
-        ${tumb.length?`<div style="font-family:'DM Serif Display',serif;font-size:20px;font-style:italic;color:#b33a2d;line-height:1;margin-top:4px">−${tumbTotal.toFixed(2)}</div>`:`<div style="font-size:11px;color:var(--stone);font-style:italic;margin-top:4px">no tumbling deductions yet</div>`}
+        <div style="font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--stone)">other deductions</div>
+        ${tumb.length?`<div style="font-family:'DM Serif Display',serif;font-size:20px;font-style:italic;color:#b33a2d;line-height:1;margin-top:4px">−${tumbTotal.toFixed(2)}</div>`:`<div style="font-size:11px;color:var(--stone);font-style:italic;margin-top:4px">no other deductions yet</div>`}
       </div>
       <button type="button" data-pp-fo-action="add-tumbling" style="padding:8px 14px;background:linear-gradient(135deg,#e91e8c,#c4559a);border:none;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;letter-spacing:.5px;color:white;cursor:pointer;box-shadow:0 3px 10px rgba(196,85,154,.3);-webkit-tap-highlight-color:rgba(255,255,255,.2);touch-action:manipulation">+ add</button>
     </div>
@@ -4200,31 +4482,38 @@ function ppFoRenderPopup(){
       </div>
     </div>`;
   } else if(kind==="tumbling-add"){
+    // Initialise the ticked-deductions Set on first render
+    if(!ppFoPopup.ticked) ppFoPopup.ticked = new Set();
+    const ticked = ppFoPopup.ticked;
+    const total = [...ticked].reduce((a,id)=>a + ((PP_OTHER_DEDUCTIONS.find(d=>d.id===id)||{}).value || 0), 0);
+    const rows = PP_OTHER_DEDUCTIONS.map(d=>{
+      const on = ticked.has(d.id);
+      return `<button type="button" data-pp-popup-action="toggle-other" data-pp-popup-id="${esc(d.id)}" style="display:flex;align-items:center;gap:12px;padding:13px 14px;background:${on?"linear-gradient(135deg,#ffeaf5,#fff4f8)":"#faf8fa"};border:1.5px solid ${on?"#ec4899":"var(--border)"};border-radius:11px;cursor:pointer;text-align:left;width:100%;-webkit-tap-highlight-color:transparent;transition:all .15s">
+        <div style="width:22px;height:22px;border-radius:6px;border:2px solid ${on?"#ec4899":"#c9c5c5"};background:${on?"#ec4899":"transparent"};display:flex;align-items:center;justify-content:center;flex-shrink:0;color:white;font-size:14px;line-height:1">${on?"✓":""}</div>
+        <div style="flex:1;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:${on?"700":"500"};color:var(--ink)">${esc(d.label)}</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:16px;font-style:italic;color:#b33a2d;font-weight:600">−${d.value.toFixed(2)}</div>
+      </button>`;
+    }).join("");
     mount.innerHTML=`<div class="pp-popup-backdrop">
       <div class="pp-popup">
         <div class="pp-popup-hd">
-          <div class="pp-popup-title">Tumbling Deduction</div>
-          <div class="pp-popup-sub">−0.25 EACH · ADD AS MANY AS YOU NEED</div>
+          <div class="pp-popup-title">Other Deductions</div>
+          <div class="pp-popup-sub">TICK ANY THAT APPLY · ATHLETE OPTIONAL</div>
         </div>
         <div class="pp-popup-body" style="padding:14px 22px 18px">
-          <div style="display:flex;flex-direction:column;gap:14px">
-            <div>
-              <label style="font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--stone);display:block;margin-bottom:6px">Athlete name</label>
-              <input id="pp-tumb-name" type="text" placeholder="e.g. Ruby" autocomplete="off" style="width:100%;padding:11px 12px;background:#faf8fa;border:1.5px solid var(--border);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);outline:none"/>
-            </div>
-            <div>
-              <label style="font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--stone);display:block;margin-bottom:6px">What happened</label>
-              <input id="pp-tumb-desc" type="text" placeholder="e.g. didn't land back tuck" autocomplete="off" style="width:100%;padding:11px 12px;background:#faf8fa;border:1.5px solid var(--border);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);outline:none"/>
-            </div>
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:linear-gradient(135deg,#fff4f2,#ffe7e3);border:1px solid #e8b8b0;border-radius:9px">
-              <div style="font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--stone)">Deduction</div>
-              <div style="font-family:'DM Serif Display',serif;font-size:22px;font-style:italic;color:#b33a2d;font-weight:600;line-height:1">−0.25</div>
-            </div>
+          <div style="margin-bottom:14px">
+            <label style="font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--stone);display:block;margin-bottom:6px">Athlete name (optional)</label>
+            <input id="pp-tumb-name" type="text" placeholder="e.g. Ruby" autocomplete="off" style="width:100%;padding:11px 12px;background:#faf8fa;border:1.5px solid var(--border);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);outline:none"/>
           </div>
+          <div style="display:flex;flex-direction:column;gap:7px">${rows}</div>
+          ${ticked.size?`<div style="display:flex;align-items:center;justify-content:space-between;padding:11px 14px;margin-top:14px;background:linear-gradient(135deg,#fff4f2,#ffe7e3);border:1px solid #e8b8b0;border-radius:9px">
+            <div style="font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--stone)">Total</div>
+            <div style="font-family:'DM Serif Display',serif;font-size:22px;font-style:italic;color:#b33a2d;font-weight:600;line-height:1">−${total.toFixed(2)}</div>
+          </div>`:""}
         </div>
         <div class="pp-popup-foot">
           <button type="button" class="pp-popup-btn-cancel" data-pp-popup-action="cancel">Cancel</button>
-          <button type="button" class="pp-popup-btn-save" data-pp-popup-action="save-tumbling">Save −0.25</button>
+          <button type="button" class="pp-popup-btn-save" data-pp-popup-action="save-tumbling"${ticked.size===0?" disabled":""}>${ticked.size===0?"Pick deductions":"Save −"+total.toFixed(2)}</button>
         </div>
       </div>
     </div>`;
@@ -4260,15 +4549,28 @@ function ppFoRenderPopup(){
           ppFoSetCell(flyer,stuntId,{status:"not_hit",deductions:[...deductions],updated_at:new Date().toISOString()});
         }
       }else if(ppFoPopup.kind==="tumbling-add"){
-        if(action==="save-tumbling"){
+        if(action==="toggle-other"){
+          ppFoPopup.ticked = ppFoPopup.ticked || new Set();
+          if(ppFoPopup.ticked.has(id)) ppFoPopup.ticked.delete(id);
+          else ppFoPopup.ticked.add(id);
+          // Preserve any typed athlete name across re-renders
+          const nm = document.getElementById("pp-tumb-name");
+          ppFoPopup.athleteName = nm ? nm.value : (ppFoPopup.athleteName || "");
+          ppFoRenderPopup();
+          // Restore focus + cursor position
+          setTimeout(()=>{
+            const n=document.getElementById("pp-tumb-name");
+            if(n && ppFoPopup && ppFoPopup.athleteName){ n.value = ppFoPopup.athleteName; }
+          }, 0);
+        }
+        else if(action==="save-tumbling"){
           const nameEl=document.getElementById("pp-tumb-name");
-          const descEl=document.getElementById("pp-tumb-desc");
           const name=(nameEl&&nameEl.value||"").trim();
-          const desc=(descEl&&descEl.value||"").trim();
-          if(!name){alert("Please enter an athlete name.");if(nameEl)nameEl.focus();return;}
-          if(!desc){alert("Please describe what happened.");if(descEl)descEl.focus();return;}
+          const ticked = ppFoPopup.ticked || new Set();
+          if(ticked.size===0)return;
           ppFoPopup=null;
-          ppFoAddTumbling(name,desc);
+          // Create one tumbling entry per ticked deduction, each with its own label + value
+          ppFoAddOtherDeductions(name, [...ticked]);
         }
       }
       return;
