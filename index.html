@@ -1177,6 +1177,70 @@ body{font-family:'DM Sans',sans-serif;color:var(--ink);}
   .pp-fo-result-miss-val{font-size:22px;}
 }
 .trend-up{color:#2d7a52;}.trend-down{color:#b33a2d;}.trend-flat{color:var(--stone);}
+/* ── Settings gear (home) + admin modal ── */
+.home-settings-btn{
+  position:absolute; bottom:18px; right:18px;
+  width:42px; height:42px;
+  background:rgba(255,255,255,0.6); border:1px solid rgba(196,85,154,0.22);
+  border-radius:100px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  font-size:18px; opacity:0.5; transition:opacity .15s, transform .15s;
+  -webkit-tap-highlight-color:transparent; z-index:5;
+}
+.home-settings-btn:hover{opacity:1;}
+.home-settings-btn:active{transform:scale(.92);}
+.admin-modal-backdrop{
+  display:none; position:fixed; inset:0; background:rgba(0,0,0,.55);
+  z-index:600; align-items:center; justify-content:center; padding:20px;
+}
+.admin-modal-backdrop.open{display:flex;}
+.admin-modal-card{
+  background:white; border-radius:18px; width:100%; max-width:440px;
+  box-shadow:0 14px 60px rgba(0,0,0,.28); overflow:hidden;
+}
+.admin-modal-hd{
+  padding:16px 22px; border-bottom:1px solid #f0e0e8;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.admin-modal-title{
+  font-family:'Bagel Fat One','DM Serif Display',sans-serif;
+  font-size:24px; color:#ec4899; letter-spacing:.3px;
+}
+.admin-modal-close{
+  background:transparent; border:none; cursor:pointer;
+  font-size:18px; color:#888; padding:4px 8px;
+}
+.admin-modal-body{padding:18px 22px 22px;}
+.admin-section-title{
+  font-family:'DM Sans',sans-serif; font-size:14px; font-weight:700;
+  color:#b33a2d; margin-bottom:10px; letter-spacing:.3px;
+}
+.admin-section-text{
+  font-family:'DM Sans',sans-serif; font-size:13px; color:#555;
+  line-height:1.5;
+}
+.admin-reset-input{
+  width:100%; padding:11px 14px; margin-top:14px;
+  background:#faf4f8; border:1.5px solid #e8c8db; border-radius:10px;
+  font-family:'DM Sans',sans-serif; font-size:14px; color:var(--ink);
+  outline:none; letter-spacing:1px;
+}
+.admin-reset-input:focus{border-color:#ec4899;}
+.admin-reset-btn{
+  width:100%; padding:13px; margin-top:12px;
+  background:linear-gradient(135deg,#d92642,#b33a2d);
+  color:white; border:none; border-radius:10px;
+  font-family:'DM Sans',sans-serif; font-size:14px; font-weight:700;
+  letter-spacing:.5px; cursor:pointer;
+  box-shadow:0 4px 16px rgba(217,38,66,.32);
+  -webkit-tap-highlight-color:transparent;
+}
+.admin-reset-btn:disabled{opacity:.4; cursor:not-allowed; box-shadow:none;}
+.admin-reset-btn:active:not(:disabled){transform:scale(.98);}
+.admin-reset-status{
+  margin-top:14px; font-size:12px; color:#888; min-height:18px;
+  font-family:'DM Sans',sans-serif;
+}
 /* PINK CHECKBOX */
 .pink-chk{width:20px;height:20px;border:1.5px solid var(--border);border-radius:4px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
 .pink-chk.on{background:var(--pink);border-color:var(--pink);}
@@ -1230,6 +1294,24 @@ body{font-family:'DM Sans',sans-serif;color:var(--ink);}
         <img src="logo-eod.png" alt="" aria-hidden="true" onerror="this.style.display='none'"/>
         <span class="lbl">All Teams Analytics</span>
       </button>
+      <button class="home-settings-btn" onclick="openAdminModal()" type="button" title="Settings">⚙️</button>
+    </div>
+  </div>
+  <!-- Admin modal — currently has the "reset all data" tool -->
+  <div id="admin-modal" class="admin-modal-backdrop" onclick="if(event.target.id==='admin-modal')closeAdminModal()">
+    <div class="admin-modal-card">
+      <div class="admin-modal-hd">
+        <div class="admin-modal-title">Settings</div>
+        <button class="admin-modal-close" onclick="closeAdminModal()" type="button">✕</button>
+      </div>
+      <div class="admin-modal-body">
+        <div class="admin-section-title">⚠️  Reset all data</div>
+        <div class="admin-section-text">This will permanently delete <b>every team's</b> stunt sessions, fullouts, star chart entries, colour-house points, coach coordination, fullout sessions, class plans, and checklists. There's no undo.</div>
+        <div class="admin-section-text" style="margin-top:10px">To confirm, type <b>RESET</b> in the box below and tap the button.</div>
+        <input id="admin-reset-input" type="text" placeholder="type RESET to enable" autocomplete="off" oninput="onAdminResetInput()" class="admin-reset-input"/>
+        <button id="admin-reset-btn" class="admin-reset-btn" onclick="adminResetAll()" disabled>Reset all data</button>
+        <div id="admin-reset-status" class="admin-reset-status"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -1380,6 +1462,77 @@ window.__resetAllData = async function(confirmText){
 setTimeout(()=>{
   try{ console.info('%c💡 Tip: to wipe all test data, run  window.__resetAllData("RESET ALL DATA")', 'color:#ec4899;font-weight:600'); }catch(e){}
 }, 1500);
+
+// ── Admin modal handlers (settings gear on home) ──
+function openAdminModal(){
+  const m = document.getElementById("admin-modal");
+  if(!m) return;
+  m.classList.add("open");
+  const inp = document.getElementById("admin-reset-input");
+  if(inp){ inp.value = ""; inp.focus(); }
+  const btn = document.getElementById("admin-reset-btn");
+  if(btn) btn.disabled = true;
+  const st = document.getElementById("admin-reset-status");
+  if(st) st.textContent = "";
+}
+function closeAdminModal(){
+  const m = document.getElementById("admin-modal");
+  if(m) m.classList.remove("open");
+}
+function onAdminResetInput(){
+  const inp = document.getElementById("admin-reset-input");
+  const btn = document.getElementById("admin-reset-btn");
+  if(!inp||!btn) return;
+  btn.disabled = inp.value.trim().toUpperCase() !== "RESET";
+}
+async function adminResetAll(){
+  const inp = document.getElementById("admin-reset-input");
+  const btn = document.getElementById("admin-reset-btn");
+  const st  = document.getElementById("admin-reset-status");
+  if(!inp || inp.value.trim().toUpperCase() !== "RESET") return;
+  // Final confirm — JS confirm() is the most reliable "are you sure" on iPad too
+  if(!confirm("Last chance — this permanently deletes ALL team data. Continue?")) return;
+  btn.disabled = true;
+  btn.textContent = "Resetting…";
+  if(st) st.textContent = "Wiping Firestore — please don't close this page.";
+  try{
+    const SUBS = ["stunt_sessions","stunt_notes","pp_fullouts","pp_stars","pp_misc","coordination","fulloutSessions","plans","checklist"];
+    const teamIds = TEAMS.map(t=>t.id);
+    let totalDeleted = 0;
+    for(const tid of teamIds){
+      for(const sub of SUBS){
+        try{
+          const snap = await db.collection("teams").doc(tid).collection(sub).get();
+          if(snap.empty) continue;
+          const docs = snap.docs;
+          for(let i=0; i<docs.length; i+=400){
+            const batch = db.batch();
+            docs.slice(i, i+400).forEach(d=>batch.delete(d.ref));
+            await batch.commit();
+          }
+          totalDeleted += docs.length;
+          if(st) st.textContent = `Cleared ${tid} / ${sub} (${docs.length} items)`;
+        }catch(e){ console.warn(`Failed ${tid}/${sub}`, e); }
+      }
+    }
+    // Clear caches + drafts
+    try{
+      Object.keys(ppCache).forEach(k=>delete ppCache[k]);
+      Object.keys(ppFoCache).forEach(k=>delete ppFoCache[k]);
+      Object.keys(ppStarsCache).forEach(k=>delete ppStarsCache[k]);
+      Object.keys(ppHousesCache).forEach(k=>delete ppHousesCache[k]);
+      Object.keys(coordCacheByTeam).forEach(k=>delete coordCacheByTeam[k]);
+      Object.keys(ppSessionDrafts).forEach(k=>delete ppSessionDrafts[k]);
+    }catch(e){}
+    try{ localStorage.removeItem("pp_session_drafts"); }catch(e){}
+    if(st) st.textContent = `✅ Done — deleted ${totalDeleted} items. Reloading…`;
+    setTimeout(()=>location.reload(), 1200);
+  }catch(e){
+    btn.disabled = false;
+    btn.textContent = "Reset all data";
+    if(st) st.textContent = "Something went wrong: " + e.message;
+  }
+}
 
 // ── TERM CALENDAR SETUP ──
 // Term 2: Week 4 starts May 4, ends Jul 4 (week 10 = Jun 29-Jul 5)
