@@ -1325,6 +1325,62 @@ body{font-family:'DM Sans',sans-serif;color:var(--ink);}
 firebase.initializeApp({apiKey:"AIzaSyA-gEiXgNxeJM369CuCzCCvHsY0V4Ge0Ps",authDomain:"eod-allstars.firebaseapp.com",projectId:"eod-allstars",storageBucket:"eod-allstars.firebasestorage.app",messagingSenderId:"951318632359",appId:"1:951318632359:web:d9cb67ded57f9b26148882"});
 const db=firebase.firestore();
 
+// ── ADMIN: reset all data ──────────────────────────────────────────────
+// Wipes every team's stunt sessions, fullouts, stars, houses, plans,
+// coordination, notes, checklists — across every team. Also clears local
+// drafts and in-memory caches, then reloads.
+// Safety: must be called with the exact confirm string. To use:
+//   window.__resetAllData("RESET ALL DATA")
+// Will print progress to the browser console.
+window.__resetAllData = async function(confirmText){
+  if(confirmText !== "RESET ALL DATA"){
+    console.warn('⚠️  This will wipe ALL team data from Firestore.');
+    console.warn('To confirm, run:  window.__resetAllData("RESET ALL DATA")');
+    return;
+  }
+  const SUBS = ["stunt_sessions","stunt_notes","pp_fullouts","pp_stars","pp_misc","coordination","fulloutSessions","plans","checklist"];
+  const teamIds = (typeof TEAMS !== "undefined") ? TEAMS.map(t=>t.id) : [];
+  console.log("🧹 Resetting all data for", teamIds.length, "teams…");
+  let totalDeleted = 0;
+  for(const tid of teamIds){
+    for(const sub of SUBS){
+      try{
+        const snap = await db.collection("teams").doc(tid).collection(sub).get();
+        if(snap.empty) continue;
+        // Firestore batches max 500 ops — chunk to be safe
+        const docs = snap.docs;
+        for(let i=0; i<docs.length; i+=400){
+          const batch = db.batch();
+          docs.slice(i, i+400).forEach(d=>batch.delete(d.ref));
+          await batch.commit();
+        }
+        totalDeleted += docs.length;
+        console.log(`  ✓ ${tid}/${sub}: deleted ${docs.length}`);
+      }catch(e){
+        console.warn(`  ✗ ${tid}/${sub}:`, e.message);
+      }
+    }
+  }
+  // Clear in-memory caches
+  try{
+    if(typeof ppCache       !== "undefined") Object.keys(ppCache).forEach(k=>delete ppCache[k]);
+    if(typeof ppFoCache     !== "undefined") Object.keys(ppFoCache).forEach(k=>delete ppFoCache[k]);
+    if(typeof ppStarsCache  !== "undefined") Object.keys(ppStarsCache).forEach(k=>delete ppStarsCache[k]);
+    if(typeof ppHousesCache !== "undefined") Object.keys(ppHousesCache).forEach(k=>delete ppHousesCache[k]);
+    if(typeof ppNotesCache  !== "undefined" && typeof ppNotesCache === "function"){/* getter */}
+    if(typeof coordCacheByTeam !== "undefined") Object.keys(coordCacheByTeam).forEach(k=>delete coordCacheByTeam[k]);
+    if(typeof ppSessionDrafts !== "undefined") Object.keys(ppSessionDrafts).forEach(k=>delete ppSessionDrafts[k]);
+  }catch(e){}
+  // Clear localStorage drafts
+  try{ localStorage.removeItem("pp_session_drafts"); }catch(e){}
+  console.log(`✅ Done. Deleted ${totalDeleted} documents. Reloading in 1s…`);
+  setTimeout(()=>location.reload(), 1000);
+};
+// Friendly console hint on load
+setTimeout(()=>{
+  try{ console.info('%c💡 Tip: to wipe all test data, run  window.__resetAllData("RESET ALL DATA")', 'color:#ec4899;font-weight:600'); }catch(e){}
+}, 1500);
+
 // ── TERM CALENDAR SETUP ──
 // Term 2: Week 4 starts May 4, ends Jul 4 (week 10 = Jun 29-Jul 5)
 // Term 3: starts Jul 6, ends Sep 26
@@ -2631,17 +2687,22 @@ function renderPPCoaches(container){
         const hasA = aMins>0, hasL = lMins>0;
         const rightBorder = di===days.length-1 ? `border-right:${GHEAVY};` : `border-right:${GLINE};`;
         let cellHtml = "";
-        if(hasA||hasL){
-          const parts = [];
-          if(hasA) parts.push(`<span style="background:${COORD_COLORS.alissa};color:white;font-weight:700;padding:3px 7px;border-radius:8px;font-size:10px;line-height:1">${aMins}</span>`);
-          if(hasL) parts.push(`<span style="background:${COORD_COLORS.lydia};color:white;font-weight:700;padding:3px 7px;border-radius:8px;font-size:10px;line-height:1">${lMins}</span>`);
-          cellHtml = `<div style="display:flex;gap:3px;justify-content:center;align-items:center;flex-wrap:wrap">${parts.join("")}</div>`;
+        if(hasA && hasL){
+          // Both coaches — vertical half-and-half split, each with its own coach colour
+          cellHtml = `<div style="display:flex;height:100%;width:100%">
+            <div style="flex:1;background:${COORD_COLORS.alissa};color:white;font-weight:700;font-size:11px;display:flex;align-items:center;justify-content:center;line-height:1">${aMins} min</div>
+            <div style="flex:1;background:${COORD_COLORS.lydia};color:white;font-weight:700;font-size:11px;display:flex;align-items:center;justify-content:center;line-height:1;border-left:1px solid rgba(255,255,255,0.4)">${lMins} min</div>
+          </div>`;
+        } else if(hasA){
+          cellHtml = `<div style="background:${COORD_COLORS.alissa};color:white;font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;height:100%;width:100%;line-height:1">${aMins} min</div>`;
+        } else if(hasL){
+          cellHtml = `<div style="background:${COORD_COLORS.lydia};color:white;font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;height:100%;width:100%;line-height:1">${lMins} min</div>`;
         }
-        grid += `<td style="padding:5px;border-bottom:${GLINE};${rightBorder}cursor:${coordCoach?"pointer":"default"};min-width:56px;height:44px;text-align:center;vertical-align:middle" onclick="coordCellClick('${w.key}','${d.id}','${esc(sec)}')">${cellHtml}</td>`;
+        grid += `<td style="padding:0;border-bottom:${GLINE};${rightBorder}cursor:${coordCoach?"pointer":"default"};min-width:60px;height:46px;text-align:center;vertical-align:middle;overflow:hidden" onclick="coordCellClick('${w.key}','${d.id}','${esc(sec)}')">${cellHtml}</td>`;
       });
     });
     const tot = totals[sec].alissa + totals[sec].lydia;
-    grid += `<td style="padding:8px 10px;font-size:13px;font-weight:700;color:${tot?"var(--ink)":"#bbb"};text-align:center;border-bottom:${GLINE}">${tot||"—"}</td></tr>`;
+    grid += `<td style="padding:8px 10px;font-size:13px;font-weight:700;color:${tot?"var(--ink)":"#bbb"};text-align:center;border-bottom:${GLINE}">${tot?tot+" min":"—"}</td></tr>`;
   });
   grid += `</tbody></table></div>`;
 
