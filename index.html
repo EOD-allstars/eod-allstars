@@ -1583,8 +1583,21 @@ const TEAMS=[
    sparkleStyle:"glitter_paws",
    taglineEmoji:"✨",
    roster:["Georgie-lee Kiem","Kayleigh Kane","Kahli","Ivy Penton","Billie","Lucy","Aurora","Aubrey","Hayden","Milani","Kora","Evelyn","Layla","Mia","Tully","Emilia","Charlee","Coco","Harlow","Izzy","Isabelle"],
-   ppStunts:[],
-   stunts:[{id:"stunt1",label:"Main Stunt",athletes:[]}],
+   ppStunts:[
+     {id:"ibk_main",label:"Main Stunt",desc:"",groups:[
+       {id:"ibk_main_ivy",name:"Ivy"},
+       {id:"ibk_main_georgie",name:"Georgie"},
+       {id:"ibk_main_izzy",name:"Izzy"},
+       {id:"ibk_main_kayleigh",name:"Kayleigh"},
+       {id:"ibk_main_kahli",name:"Kahli"}
+     ]},
+     {id:"ibk_pyramid",label:"Pyramid",desc:"",groups:[
+       {id:"ibk_pyr_izzy",name:"Izzy",label:"Izzy's side"},
+       {id:"ibk_pyr_georgie",name:"Georgie",label:"Georgie's side"},
+       {id:"ibk_pyr_ivy",name:"Ivy",label:"Ivy middle"}
+     ]}
+   ],
+   stunts:[{id:"stunt1",label:"Main Stunt",athletes:["Ivy","Georgie","Izzy","Kayleigh","Kahli"]},{id:"stunt2",label:"Pyramid",athletes:["Izzy","Georgie","Ivy"]}],
    templates:{tuesday:{id:"tuesday",display:"Tuesday",time:"5:00 pm - 6:45 pm",duration:105},thursday:{id:"thursday",display:"Thursday",time:"6:00 pm - 7:30 pm",duration:90}}},
   {id:"lady_lynx",name:"Lady Lynx",abbr:"LLX",logo:"logo-lady-lynx.png",
    noClassPlan:true,
@@ -2984,6 +2997,8 @@ function ppHousesDoc(teamId){
   return db.collection("teams").doc(teamId).collection("pp_misc").doc("houses");
 }
 function ppNotesCache(){return window._ppNotes||{};}
+// Group display label — uses a custom label if set (e.g. "Izzy's side"), else "<name>'s group".
+function ppGroupLabel(g){ return (g && g.label) ? g.label : ((g && g.name ? g.name : "") + "'s group"); }
 
 let _ppListenerTeamId=null;
 let _ppUnsubscribers=[];
@@ -3483,7 +3498,7 @@ function renderPPStuntTraining(container){
       const pct = atts > 0 ? Math.round((hits/atts)*100) : null;
       const pctColor = pct === null ? "var(--stone)" : pctCol(pct);
       return `<div class="pp-stunt-card">
-        <div class="pp-stunt-card-name">${esc(g.name)}'s group</div>
+        <div class="pp-stunt-card-name">${esc(ppGroupLabel(g))}</div>
         <div class="pp-stunt-card-pct" style="color:${pctColor}">${pct === null ? "—" : pct + "%"}</div>
         <div class="pp-stunt-card-count">${hits} / ${atts}</div>
         <div class="pp-stunt-card-actions">
@@ -3936,7 +3951,7 @@ function renderPPGroups(container){
     const trend=calcTrend(sessions);
     html+=`<button type="button" data-pp-action="select-group" data-pp-group-id="${esc(g.id)}" style="background:white;border:2px solid var(--border);border-radius:14px;padding:20px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;transition:all .2s;font-family:'DM Sans',sans-serif;width:100%;-webkit-tap-highlight-color:rgba(196,85,154,.2);touch-action:manipulation">
       <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#e91e8c,#9b59b6);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:28px;font-style:italic;color:white;pointer-events:none">${esc(g.name[0])}</div>
-      <div style="font-size:15px;font-weight:700;color:var(--ink);pointer-events:none">${esc(g.name)}'s group</div>
+      <div style="font-size:15px;font-weight:700;color:var(--ink);pointer-events:none">${esc(ppGroupLabel(g))}</div>
       ${pct!==null?`<div style="font-size:13px;font-weight:700;color:${pctCol(pct)};pointer-events:none">${pct}% last session</div>`:""}
       ${trend?`<div style="font-size:13px;pointer-events:none" class="${trend.cls}">${trend.arrow}</div>`:""}
     </button>`;
@@ -4000,7 +4015,7 @@ function renderPPSession(container){
   let html=`<div style="flex:1;overflow-y:auto;padding:20px 16px 60px;background:linear-gradient(135deg,#fff0f8,#f8f0ff)" class="pp-bigscreen-scope">
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
       <button onclick="curTeamTab='pp_stunt_training';renderTeamTab()" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--stone)">&#8592;</button>
-      <div><div style="font-family:'Bagel Fat One','DM Serif Display',sans-serif;font-size:24px;line-height:1;color:var(--ink)">${esc(stunt.label)} · ${esc(group.name)}'s group</div>
+      <div><div style="font-family:'Bagel Fat One','DM Serif Display',sans-serif;font-size:24px;line-height:1;color:var(--ink)">${esc(stunt.label)} · ${esc(ppGroupLabel(group))}</div>
       <div style="font-size:11px;color:var(--stone);margin-top:4px">${esc(stunt.desc)}</div></div>
     </div>
 
@@ -4321,7 +4336,7 @@ function renderPPTeamStats(container){
         atts=filtered.reduce((a,s)=>a+(s.attempts||0),0);
         hits=filtered.reduce((a,s)=>a+(s.hits||0),0);
         const pct=atts>0?Math.round((hits/atts)*100):null;
-        return{groupId:g.id,name:g.name,atts,hits,pct};
+        return{groupId:g.id,name:g.name,label:g.label,atts,hits,pct};
       });
     const crowned=ppCrownWinners(rows);
     const hasGroups=(stunt.groups||[]).length>0;
@@ -4348,7 +4363,7 @@ function renderPPTeamStats(container){
         const barWidth=hasData?r.pct:0;
         html+=`<div style="display:grid;grid-template-columns:1.4fr 50px 50px 1.2fr 56px;align-items:center;padding:9px 14px;border-bottom:1px solid var(--border);font-size:12px">
           <span style="color:var(--ink);display:flex;align-items:center;gap:5px">
-            ${esc(r.name)}'s group${isCrowned?' <span style="font-size:14px" title="Top group">👑</span>':""}
+            ${esc(ppGroupLabel(r))}${isCrowned?' <span style="font-size:14px" title="Top group">👑</span>':""}
           </span>
           <span style="text-align:center;color:${hasData?"var(--ink)":"var(--stone)"};font-weight:${hasData?"600":"400"}">${hasData?r.atts:"–"}</span>
           <span style="text-align:center;color:${hasData?"var(--ink)":"var(--stone)"};font-weight:${hasData?"600":"400"}">${hasData?r.hits:"–"}</span>
